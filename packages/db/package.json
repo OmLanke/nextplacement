@@ -21,6 +21,9 @@
   },
   "devDependencies": {
     "dotenv": "^16.5.0",
-    "drizzle-kit": "^0.31.1"
+    "drizzle-kit": "^0.31.1",
+    "typescript": "^5.7.3",
+    "@workspace/eslint-config": "workspace:*",
+    "@workspace/typescript-config": "workspace:*"
   }
 }
