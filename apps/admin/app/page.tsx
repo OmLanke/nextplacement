@@ -1,11 +1,11 @@
 import Login from "@/components/login";
 import Studs from "@/components/studs";
-import { db, students } from "@workspace/db";
-import { signIn, signOut } from "@workspace/auth";
+import { db, admins } from "@workspace/db";
+import { auth, signIn, signOut } from "@workspace/auth";
 
 async function getStudents() {
   "use server";
-  const s = await db.select().from(students);
+  const s = await db.select().from(admins);
   console.log(s);
 }
 
@@ -20,11 +20,12 @@ async function logOut() {
 }
 
 export default async function Page() {
+  const session = await auth()
   return (
     <div className="flex items-center justify-center min-h-svh">
       <div className="flex flex-col items-center justify-center gap-4">
         <h1 className="text-2xl font-bold">Hello admins</h1>
-        <Login logIn={logIn} />
+        {!session?.user && <Login logIn={logIn} />}
         <Studs action={getStudents} logOut={logOut} />
       </div>
     </div>
