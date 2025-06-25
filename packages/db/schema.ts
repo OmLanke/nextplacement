@@ -8,6 +8,8 @@ import {
   timestamp,
   integer,
   numeric,
+  primaryKey,
+  check
 } from "drizzle-orm/pg-core";
 
 export const students = pgTable("students", {
@@ -32,6 +34,7 @@ export const students = pgTable("students", {
   github: text(),
   ssc: numeric({ precision: 4, scale: 2 }),
   hsc: numeric({ precision: 4, scale: 2 }),
+  isDiploma: boolean(),
   createdAt: timestamp().notNull().defaultNow(),
   updatedAt: timestamp()
     .defaultNow()
@@ -106,7 +109,6 @@ export const resumes = pgTable("resumes", {
 });
 
 export const grades = pgTable("grades", {
-  id: serial().primaryKey(),
   studentId: integer("student_id")
     .notNull()
     .references(() => students.id),
@@ -119,7 +121,7 @@ export const grades = pgTable("grades", {
     .defaultNow()
     .$onUpdate(() => new Date())
     .notNull(),
-});
+}, (table) => [primaryKey({ columns: [table.studentId, table.sem] }), check("sem_check1", sql`${table.sem} < 9`)]);
 
 export const studentRelations = relations(students, ({ many }) => ({
   internships: many(internships),
