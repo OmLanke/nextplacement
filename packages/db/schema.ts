@@ -9,7 +9,7 @@ import {
   integer,
   numeric,
   primaryKey,
-  check
+  check,
 } from "drizzle-orm/pg-core";
 
 export const students = pgTable("students", {
@@ -21,6 +21,9 @@ export const students = pgTable("students", {
   middleName: varchar({ length: 255 }),
   lastName: varchar({ length: 255 }),
   mothersName: varchar({ length: 255 }),
+  gender: varchar({ length: 10 }),
+  dob: timestamp(),
+  personalGmail: text(),
   phoneNumber: varchar({ length: 10 }),
   address: text(),
   profilePicture: text(),
@@ -32,9 +35,9 @@ export const students = pgTable("students", {
     .default(sql`ARRAY[]::text[]`),
   linkedin: text(),
   github: text(),
-  ssc: numeric({ precision: 4, scale: 2 }),
-  hsc: numeric({ precision: 4, scale: 2 }),
-  isDiploma: boolean(),
+  ssc: numeric({ precision: 4, scale: 2 }), // TODO: year, board
+  hsc: numeric({ precision: 4, scale: 2 }), // TODO: year, board
+  isDiploma: boolean(), // TODO: diploma branch
   createdAt: timestamp().notNull().defaultNow(),
   updatedAt: timestamp()
     .defaultNow()
@@ -53,7 +56,7 @@ export const internships = pgTable("internships", {
   location: text().notNull(),
   startDate: timestamp().notNull(),
   endDate: timestamp().notNull(),
-  status: text().notNull(),
+  // status: text().notNull(),
   createdAt: timestamp().notNull().defaultNow(),
   updatedAt: timestamp()
     .defaultNow()
@@ -61,38 +64,38 @@ export const internships = pgTable("internships", {
     .notNull(),
 });
 
-export const projects = pgTable("projects", {
-  id: serial().primaryKey(),
-  studentId: integer("student_id")
-    .notNull()
-    .references(() => students.id),
-  title: text().notNull(),
-  description: text().notNull(),
-  links: text()
-    .array()
-    .notNull()
-    .default(sql`ARRAY[]::text[]`),
-  createdAt: timestamp().notNull().defaultNow(),
-  updatedAt: timestamp()
-    .defaultNow()
-    .$onUpdate(() => new Date())
-    .notNull(),
-});
+// export const projects = pgTable("projects", {
+//   id: serial().primaryKey(),
+//   studentId: integer("student_id")
+//     .notNull()
+//     .references(() => students.id),
+//   title: text().notNull(),
+//   description: text().notNull(),
+//   links: text()
+//     .array()
+//     .notNull()
+//     .default(sql`ARRAY[]::text[]`),
+//   createdAt: timestamp().notNull().defaultNow(),
+//   updatedAt: timestamp()
+//     .defaultNow()
+//     .$onUpdate(() => new Date())
+//     .notNull(),
+// });
 
-export const certificates = pgTable("certificates", {
-  id: serial().primaryKey(),
-  studentId: integer("student_id")
-    .notNull()
-    .references(() => students.id),
-  title: text().notNull(),
-  description: text().notNull(),
-  link: text().notNull(),
-  createdAt: timestamp().notNull().defaultNow(),
-  updatedAt: timestamp()
-    .defaultNow()
-    .$onUpdate(() => new Date())
-    .notNull(),
-});
+// export const certificates = pgTable("certificates", {
+//   id: serial().primaryKey(),
+//   studentId: integer("student_id")
+//     .notNull()
+//     .references(() => students.id),
+//   title: text().notNull(),
+//   description: text().notNull(),
+//   link: text().notNull(),
+//   createdAt: timestamp().notNull().defaultNow(),
+//   updatedAt: timestamp()
+//     .defaultNow()
+//     .$onUpdate(() => new Date())
+//     .notNull(),
+// });
 
 export const resumes = pgTable("resumes", {
   id: serial().primaryKey(),
@@ -108,25 +111,32 @@ export const resumes = pgTable("resumes", {
     .notNull(),
 });
 
-export const grades = pgTable("grades", {
-  studentId: integer("student_id")
-    .notNull()
-    .references(() => students.id),
-  sem: integer().notNull(),
-  sgpi: numeric({ precision: 4, scale: 2 }).notNull(),
-  isKT: boolean().notNull(),
-  deadKT: boolean(),
-  createdAt: timestamp().notNull().defaultNow(),
-  updatedAt: timestamp()
-    .defaultNow()
-    .$onUpdate(() => new Date())
-    .notNull(),
-}, (table) => [primaryKey({ columns: [table.studentId, table.sem] }), check("sem_check1", sql`${table.sem} < 9`)]);
+export const grades = pgTable(
+  "grades",
+  {
+    studentId: integer("student_id")
+      .notNull()
+      .references(() => students.id),
+    sem: integer().notNull(),
+    sgpi: numeric({ precision: 4, scale: 2 }).notNull(),
+    isKT: boolean().notNull(),
+    deadKT: boolean(),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.studentId, table.sem] }),
+    check("sem_check1", sql`${table.sem} < 9`),
+  ],
+);
 
 export const studentRelations = relations(students, ({ many }) => ({
   internships: many(internships),
-  projects: many(projects),
-  certificates: many(certificates),
+  // projects: many(projects),
+  // certificates: many(certificates),
   resumes: many(resumes),
   grades: many(grades),
 }));
@@ -138,19 +148,19 @@ export const internshipRelations = relations(internships, ({ one }) => ({
   }),
 }));
 
-export const projectRelations = relations(projects, ({ one }) => ({
-  student: one(students, {
-    fields: [projects.studentId],
-    references: [students.id],
-  }),
-}));
+// export const projectRelations = relations(projects, ({ one }) => ({
+//   student: one(students, {
+//     fields: [projects.studentId],
+//     references: [students.id],
+//   }),
+// }));
 
-export const certificateRelations = relations(certificates, ({ one }) => ({
-  student: one(students, {
-    fields: [certificates.studentId],
-    references: [students.id],
-  }),
-}));
+// export const certificateRelations = relations(certificates, ({ one }) => ({
+//   student: one(students, {
+//     fields: [certificates.studentId],
+//     references: [students.id],
+//   }),
+// }));
 
 export const resumeRelations = relations(resumes, ({ one, many }) => ({
   student: one(students, {
@@ -173,7 +183,7 @@ export const companies = pgTable("companies", {
   email: text().notNull(),
   link: text().notNull(),
   description: text().notNull(),
-  passwordHash: text(),
+  // passwordHash: text(),
   imageURL: text().notNull(),
   createdAt: timestamp().notNull().defaultNow(),
   updatedAt: timestamp()

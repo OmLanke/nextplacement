@@ -20,12 +20,14 @@ async function logOut() {
 }
 
 export default async function Page() {
-  const session = await auth()
+  const session = await auth();
   return (
     <div className="flex items-center justify-center min-h-svh">
       <div className="flex flex-col items-center justify-center gap-4">
-        <h1 className="text-2xl font-bold">Hello admin {session?.user?.name}</h1>
-        {!session?.user && <Login logIn={logIn} />}
+        <h1 className="text-2xl font-bold">
+          Hello admin {session?.user?.name}
+        </h1>
+        {!session?.user && <Login action={logIn} />}
         <Studs action={getStudents} logOut={logOut} />
       </div>
     </div>
