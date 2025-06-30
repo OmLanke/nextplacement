@@ -1,7 +1,7 @@
-import NextAuth, { type NextAuthConfig } from "next-auth";
-import Google from "next-auth/providers/google";
-import { db, admins, students } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import NextAuth, { type NextAuthConfig } from 'next-auth';
+import Google from 'next-auth/providers/google';
+import { db, admins, students } from '@workspace/db';
+import { eq } from 'drizzle-orm';
 
 const authConfig: NextAuthConfig = {
   providers: [Google],
@@ -9,16 +9,12 @@ const authConfig: NextAuthConfig = {
     async jwt({ token, account, user, profile }) {
       // Only check DB on first sign in
       if (account && user && user.email) {
-        const admin = await db
-          .select()
-          .from(admins)
-          .where(eq(admins.email, user.email))
-          .limit(1);
+        const admin = await db.select().from(admins).where(eq(admins.email, user.email)).limit(1);
         if (admin.length > 0 && admin[0]) {
-          token.role = "ADMIN";
+          token.role = 'ADMIN';
           token.adminId = admin[0].id;
         } else {
-          token.role = "USER";
+          token.role = 'USER';
           const student = await db
             .select()
             .from(students)
@@ -27,9 +23,9 @@ const authConfig: NextAuthConfig = {
           if (student.length > 0 && student[0]) {
             token.studentId = student[0].id;
           } else {
-            const nameParts = user.name?.split(" ") ?? [];
-            const firstName = nameParts[0] || "";
-            const lastName = nameParts.slice(1).join(" ") || "";
+            const nameParts = user.name?.split(' ') ?? [];
+            const firstName = nameParts[0] || '';
+            const lastName = nameParts.slice(1).join(' ') || '';
             const newStudent = await db
               .insert(students)
               .values({
@@ -49,7 +45,7 @@ const authConfig: NextAuthConfig = {
     },
     async session({ session, token }) {
       if (token?.role) {
-        session.user.role = token.role as "ADMIN" | "USER";
+        session.user.role = token.role as 'ADMIN' | 'USER';
       }
       if (token?.adminId) {
         session.user.adminId = token.adminId as number;

@@ -1,4 +1,4 @@
-import { sql, relations } from "drizzle-orm";
+import { sql, relations } from 'drizzle-orm';
 import {
   pgTable,
   serial,
@@ -10,9 +10,9 @@ import {
   numeric,
   primaryKey,
   check,
-} from "drizzle-orm/pg-core";
+} from 'drizzle-orm/pg-core';
 
-export const students = pgTable("students", {
+export const students = pgTable('students', {
   id: serial().primaryKey(),
   email: text().notNull(),
   rollNumber: varchar({ length: 12 }),
@@ -45,9 +45,9 @@ export const students = pgTable("students", {
     .notNull(),
 });
 
-export const internships = pgTable("internships", {
+export const internships = pgTable('internships', {
   id: serial().primaryKey(),
-  studentId: integer("student_id")
+  studentId: integer('student_id')
     .notNull()
     .references(() => students.id),
   title: text().notNull(),
@@ -97,9 +97,9 @@ export const internships = pgTable("internships", {
 //     .notNull(),
 // });
 
-export const resumes = pgTable("resumes", {
+export const resumes = pgTable('resumes', {
   id: serial().primaryKey(),
-  studentId: integer("student_id")
+  studentId: integer('student_id')
     .notNull()
     .references(() => students.id),
   title: text().notNull(),
@@ -112,9 +112,9 @@ export const resumes = pgTable("resumes", {
 });
 
 export const grades = pgTable(
-  "grades",
+  'grades',
   {
-    studentId: integer("student_id")
+    studentId: integer('student_id')
       .notNull()
       .references(() => students.id),
     sem: integer().notNull(),
@@ -129,7 +129,7 @@ export const grades = pgTable(
   },
   (table) => [
     primaryKey({ columns: [table.studentId, table.sem] }),
-    check("sem_check1", sql`${table.sem} < 9`),
+    check('sem_check1', sql`${table.sem} < 9`),
   ],
 );
 
@@ -177,7 +177,7 @@ export const gradeRelations = relations(grades, ({ one }) => ({
   }),
 }));
 
-export const companies = pgTable("companies", {
+export const companies = pgTable('companies', {
   id: serial().primaryKey(),
   name: text().notNull(),
   email: text().notNull(),
@@ -192,9 +192,9 @@ export const companies = pgTable("companies", {
     .notNull(),
 });
 
-export const jobs = pgTable("jobs", {
+export const jobs = pgTable('jobs', {
   id: serial().primaryKey(),
-  companyId: integer("company_id")
+  companyId: integer('company_id')
     .notNull()
     .references(() => companies.id),
   title: text().notNull(),
@@ -205,9 +205,9 @@ export const jobs = pgTable("jobs", {
   salary: text().notNull(),
   applicationDeadline: timestamp().notNull(),
   active: boolean().notNull().default(false),
-  minCGPA: numeric({ precision: 4, scale: 2 }).notNull().default("0"),
-  minSSC: numeric({ precision: 4, scale: 2 }).notNull().default("0"),
-  minHSC: numeric({ precision: 4, scale: 2 }).notNull().default("0"),
+  minCGPA: numeric({ precision: 4, scale: 2 }).notNull().default('0'),
+  minSSC: numeric({ precision: 4, scale: 2 }).notNull().default('0'),
+  minHSC: numeric({ precision: 4, scale: 2 }).notNull().default('0'),
   allowDeadKT: boolean().notNull().default(true),
   allowLiveKT: boolean().notNull().default(true),
   createdAt: timestamp().notNull().defaultNow(),
@@ -217,18 +217,18 @@ export const jobs = pgTable("jobs", {
     .notNull(),
 });
 
-export const applications = pgTable("applications", {
+export const applications = pgTable('applications', {
   id: serial().primaryKey(),
-  jobId: integer("job_id")
+  jobId: integer('job_id')
     .notNull()
     .references(() => jobs.id),
-  studentId: integer("student_id")
+  studentId: integer('student_id')
     .notNull()
     .references(() => students.id),
-  resumeId: integer("resume_id")
+  resumeId: integer('resume_id')
     .notNull()
     .references(() => resumes.id),
-  status: text().notNull().default("pending"),
+  status: text().notNull().default('pending'),
   createdAt: timestamp().notNull().defaultNow(),
   updatedAt: timestamp()
     .defaultNow()
@@ -263,7 +263,7 @@ export const applicationsRelations = relations(applications, ({ one }) => ({
   }),
 }));
 
-export const admins = pgTable("admins", {
+export const admins = pgTable('admins', {
   id: serial().primaryKey(),
   email: text().notNull().unique(),
   createdAt: timestamp().notNull().defaultNow(),

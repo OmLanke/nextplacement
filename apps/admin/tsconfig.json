@@ -6,7 +6,7 @@
       "@/*": ["./*"],
       "@workspace/ui/*": ["../../packages/ui/src/*"],
       "@workspace/db/*": ["../../packages/db/src/*"],
-      "@workspace/auth/*": ["../../packages/auth/src/*"],
+      "@workspace/auth/*": ["../../packages/auth/src/*"]
     },
     "plugins": [
       {
@@ -14,12 +14,6 @@
       }
     ]
   },
-  "include": [
-    "next-env.d.ts",
-    "next.config.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts"
-  ],
+  "include": ["next-env.d.ts", "next.config.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
 }

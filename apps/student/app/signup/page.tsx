@@ -1,151 +1,176 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { Button } from "@workspace/ui/components/button"
-import { Input } from "@workspace/ui/components/input"
-import { Textarea } from "@workspace/ui/components/textarea"
-import { Progress } from "@workspace/ui/components/progress"
-import { Separator } from "@workspace/ui/components/separator"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@workspace/ui/components/form"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@workspace/ui/components/select"
-import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card"
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Button } from '@workspace/ui/components/button';
+import { Input } from '@workspace/ui/components/input';
+import { Textarea } from '@workspace/ui/components/textarea';
+import { Progress } from '@workspace/ui/components/progress';
+import { Separator } from '@workspace/ui/components/separator';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  FormDescription,
+} from '@workspace/ui/components/form';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@workspace/ui/components/select';
+import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/components/card';
 
 // Form schema
 const formSchema = z.object({
   // Personal Details
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
   fathersName: z.string().optional(),
   mothersName: z.string().optional(),
-  email: z.string().email("Invalid email address"),
-  rollNumber: z.string().min(1, "Roll number is required"),
-  phoneNumber: z.string().min(10, "Phone number must be at least 10 digits"),
-  address: z.string().min(1, "Address is required"),
+  email: z.string().email('Invalid email address'),
+  rollNumber: z.string().min(1, 'Roll number is required'),
+  phoneNumber: z.string().min(10, 'Phone number must be at least 10 digits'),
+  address: z.string().min(1, 'Address is required'),
 
   // Academic Details
-  degree: z.string().min(1, "Degree is required"),
-  year: z.string().min(1, "Year is required"),
-  branch: z.string().min(1, "Branch is required"),
-  ssc: z.string().min(1, "SSC percentage is required"),
-  hsc: z.string().min(1, "HSC percentage is required"),
+  degree: z.string().min(1, 'Degree is required'),
+  year: z.string().min(1, 'Year is required'),
+  branch: z.string().min(1, 'Branch is required'),
+  ssc: z.string().min(1, 'SSC percentage is required'),
+  hsc: z.string().min(1, 'HSC percentage is required'),
 
   // Semester Grades
-  sem1: z.string().min(1, "Semester 1 grade is required"),
-  sem1KT: z.string().min(1, "Semester 1 KT status is required"),
-  sem2: z.string().min(1, "Semester 2 grade is required"),
-  sem2KT: z.string().min(1, "Semester 2 KT status is required"),
+  sem1: z.string().min(1, 'Semester 1 grade is required'),
+  sem1KT: z.string().min(1, 'Semester 1 KT status is required'),
+  sem2: z.string().min(1, 'Semester 2 grade is required'),
+  sem2KT: z.string().min(1, 'Semester 2 KT status is required'),
 
   // Additional Details
-  linkedin: z.string().url("Invalid LinkedIn URL"),
-  github: z.string().url("Invalid GitHub URL"),
+  linkedin: z.string().url('Invalid LinkedIn URL'),
+  github: z.string().url('Invalid GitHub URL'),
   skills: z.string().optional(),
-})
+});
 
-type FormData = z.infer<typeof formSchema>
+type FormData = z.infer<typeof formSchema>;
 
 const steps = [
   {
     id: 1,
-    title: "Personal Details",
-    fields: ["firstName", "lastName", "fathersName", "mothersName", "email", "rollNumber", "phoneNumber", "address"],
+    title: 'Personal Details',
+    fields: [
+      'firstName',
+      'lastName',
+      'fathersName',
+      'mothersName',
+      'email',
+      'rollNumber',
+      'phoneNumber',
+      'address',
+    ],
   },
-  { id: 2, title: "Academic Details", fields: ["degree", "year", "branch", "ssc", "hsc"] },
-  { id: 3, title: "Semester Grades", fields: ["sem1", "sem1KT", "sem2", "sem2KT"] },
-  { id: 4, title: "Additional Details", fields: ["linkedin", "github", "skills"] },
-]
+  { id: 2, title: 'Academic Details', fields: ['degree', 'year', 'branch', 'ssc', 'hsc'] },
+  { id: 3, title: 'Semester Grades', fields: ['sem1', 'sem1KT', 'sem2', 'sem2KT'] },
+  { id: 4, title: 'Additional Details', fields: ['linkedin', 'github', 'skills'] },
+];
 
 export default function StudentRegistrationForm() {
-  const [currentStep, setCurrentStep] = useState(1)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [currentStep, setCurrentStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
-      fathersName: "",
-      mothersName: "",
-      email: "",
-      rollNumber: "",
-      phoneNumber: "",
-      address: "",
-      degree: "",
-      year: "",
-      branch: "",
-      ssc: "",
-      hsc: "",
-      sem1: "",
-      sem1KT: "",
-      sem2: "",
-      sem2KT: "",
-      linkedin: "",
-      github: "",
-      skills: "",
+      firstName: '',
+      lastName: '',
+      fathersName: '',
+      mothersName: '',
+      email: '',
+      rollNumber: '',
+      phoneNumber: '',
+      address: '',
+      degree: '',
+      year: '',
+      branch: '',
+      ssc: '',
+      hsc: '',
+      sem1: '',
+      sem1KT: '',
+      sem2: '',
+      sem2KT: '',
+      linkedin: '',
+      github: '',
+      skills: '',
     },
-  })
+  });
 
   const validateCurrentStep = async () => {
-    const currentStepData = steps.find((step) => step.id === currentStep)
-    if (!currentStepData) return false
+    const currentStepData = steps.find((step) => step.id === currentStep);
+    if (!currentStepData) return false;
 
-    const result = await form.trigger(currentStepData.fields as any)
-    return result
-  }
+    const result = await form.trigger(currentStepData.fields as any);
+    return result;
+  };
 
   const nextStep = async () => {
-    const isValid = await validateCurrentStep()
+    const isValid = await validateCurrentStep();
     if (isValid && currentStep < steps.length) {
-      setCurrentStep(currentStep + 1)
+      setCurrentStep(currentStep + 1);
     }
-  }
+  };
 
   const prevStep = () => {
     if (currentStep > 1) {
-      setCurrentStep(currentStep - 1)
+      setCurrentStep(currentStep - 1);
     }
-  }
+  };
 
   const onSubmit = async (data: FormData) => {
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
       // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-      console.log("Form submitted:", data)
-      alert("Form submitted successfully!")
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      console.log('Form submitted:', data);
+      alert('Form submitted successfully!');
     } catch (error) {
-      console.error("Submission error:", error)
-      alert("Submission failed. Please try again.")
+      console.error('Submission error:', error);
+      alert('Submission failed. Please try again.');
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const renderStep = () => {
     switch (currentStep) {
       case 1:
-        return <PersonalDetailsStep form={form} />
+        return <PersonalDetailsStep form={form} />;
       case 2:
-        return <AcademicDetailsStep form={form} />
+        return <AcademicDetailsStep form={form} />;
       case 3:
-        return <SemesterGradesStep form={form} />
+        return <SemesterGradesStep form={form} />;
       case 4:
-        return <AdditionalDetailsStep form={form} />
+        return <AdditionalDetailsStep form={form} />;
       default:
-        return null
+        return null;
     }
-  }
+  };
 
-  const progress = (currentStep / steps.length) * 100
+  const progress = (currentStep / steps.length) * 100;
 
   return (
     <div className="min-h-screen py-8">
       <div className="max-w-3xl mx-auto px-4">
         <Card>
           <CardHeader>
-            <CardTitle className="text-2xl font-bold text-center">Student Registration Form</CardTitle>
+            <CardTitle className="text-2xl font-bold text-center">
+              Student Registration Form
+            </CardTitle>
             <div className="space-y-2">
               <div className="flex justify-between text-sm text-muted-foreground">
                 <span>
@@ -162,13 +187,18 @@ export default function StudentRegistrationForm() {
                 {renderStep()}
 
                 <div className="flex justify-between pt-6">
-                  <Button type="button" variant="outline" onClick={prevStep} disabled={currentStep === 1}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={prevStep}
+                    disabled={currentStep === 1}
+                  >
                     Previous
                   </Button>
 
                   {currentStep === steps.length ? (
                     <Button type="submit" disabled={isSubmitting}>
-                      {isSubmitting ? "Submitting..." : "Submit"}
+                      {isSubmitting ? 'Submitting...' : 'Submit'}
                     </Button>
                   ) : (
                     <Button type="button" onClick={nextStep}>
@@ -182,7 +212,7 @@ export default function StudentRegistrationForm() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
 
 function PersonalDetailsStep({ form }: { form: any }) {
@@ -308,30 +338,30 @@ function PersonalDetailsStep({ form }: { form: any }) {
         )}
       />
     </div>
-  )
+  );
 }
 
 function AcademicDetailsStep({ form }: { form: any }) {
   const degreeOptions = [
-    { value: "btech", label: "B.Tech" },
-    { value: "be", label: "B.E." },
-    { value: "bsc", label: "B.Sc" },
-    { value: "bca", label: "BCA" },
-  ]
+    { value: 'btech', label: 'B.Tech' },
+    { value: 'be', label: 'B.E.' },
+    { value: 'bsc', label: 'B.Sc' },
+    { value: 'bca', label: 'BCA' },
+  ];
 
   const yearOptions = [
-    { value: "2024", label: "2024" },
-    { value: "2025", label: "2025" },
-    { value: "2026", label: "2026" },
-    { value: "2027", label: "2027" },
-  ]
+    { value: '2024', label: '2024' },
+    { value: '2025', label: '2025' },
+    { value: '2026', label: '2026' },
+    { value: '2027', label: '2027' },
+  ];
 
   const branchOptions = [
-    { value: "cse", label: "Computer Science" },
-    { value: "it", label: "Information Technology" },
-    { value: "ece", label: "Electronics & Communication" },
-    { value: "mechanical", label: "Mechanical" },
-  ]
+    { value: 'cse', label: 'Computer Science' },
+    { value: 'it', label: 'Information Technology' },
+    { value: 'ece', label: 'Electronics & Communication' },
+    { value: 'mechanical', label: 'Mechanical' },
+  ];
 
   return (
     <div className="space-y-4">
@@ -443,16 +473,16 @@ function AcademicDetailsStep({ form }: { form: any }) {
         />
       </div>
     </div>
-  )
+  );
 }
 
 function SemesterGradesStep({ form }: { form: any }) {
   const ktOptions = [
-    { value: "0", label: "0 KT" },
-    { value: "1", label: "1 KT" },
-    { value: "2", label: "2 KT" },
-    { value: "3+", label: "3+ KT" },
-  ]
+    { value: '0', label: '0 KT' },
+    { value: '1', label: '1 KT' },
+    { value: '2', label: '2 KT' },
+    { value: '3+', label: '3+ KT' },
+  ];
 
   return (
     <div className="space-y-4">
@@ -538,7 +568,7 @@ function SemesterGradesStep({ form }: { form: any }) {
         />
       </div>
     </div>
-  )
+  );
 }
 
 function AdditionalDetailsStep({ form }: { form: any }) {
@@ -594,5 +624,5 @@ function AdditionalDetailsStep({ form }: { form: any }) {
         )}
       />
     </div>
-  )
+  );
 }

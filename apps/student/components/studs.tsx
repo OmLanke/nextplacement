@@ -1,5 +1,5 @@
-import { Button } from "@workspace/ui/components/button";
-import { auth } from "@workspace/auth";
+import { Button } from '@workspace/ui/components/button';
+import { auth } from '@workspace/auth';
 
 export default async function Studs({
   action,
@@ -12,7 +12,9 @@ export default async function Studs({
   if (!session?.user) return null;
   return (
     <div className="flex gap-2">
-      <Button onClick={action} variant="outline">Click me</Button>
+      <Button onClick={action} variant="outline">
+        Click me
+      </Button>
       <Button onClick={logOut}>Sign Out</Button>
     </div>
   );

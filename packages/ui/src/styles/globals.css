@@ -1,13 +1,13 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 @source "../../../apps/**/*.{ts,tsx}";
 @source "../../../components/**/*.{ts,tsx}";
 @source "../**/*.{ts,tsx}";
 
-@import "tw-animate-css";
+@import 'tw-animate-css';
 
 @theme {
-  --font-sans: "var(--font-sans)";
-  --font-marcellus: "var(--font-marcellus)";
+  --font-sans: 'var(--font-sans)';
+  --font-marcellus: 'var(--font-marcellus)';
 }
 
 @custom-variant dark (&:is(.dark *));
