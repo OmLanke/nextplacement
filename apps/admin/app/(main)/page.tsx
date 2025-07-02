@@ -73,15 +73,15 @@ export default async function DashboardPage() {
   const data = await getDashboardData();
 
   return (
-    <div className="container mx-auto py-10 space-y-10">
-      <section className="flex justify-between items-center">
+    <div className="space-y-12">
+      <section className="flex flex-col md:flex-row md:justify-between md:items-center gap-6 md:gap-0">
         <div>
-          <h1 className="text-3xl font-bold text-primary">Companies Dashboard</h1>
-          <p className="text-muted-foreground mt-1">Manage companies and their job openings.</p>
+          <h1 className="text-4xl font-extrabold text-blue-700 tracking-tight mb-1">Companies Dashboard</h1>
+          <p className="text-gray-500 text-lg">Manage companies and their job openings.</p>
         </div>
         <Dialog>
           <DialogTrigger asChild>
-            <Button className="bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">Add New Company</Button>
+            <Button className="bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg hover:from-blue-600 hover:to-purple-600 transition">Add New Company</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
@@ -96,44 +96,45 @@ export default async function DashboardPage() {
               <Input name="link" placeholder="Website / careers link" />
               <Input name="imageURL" placeholder="Image URL" />
               <Textarea name="description" placeholder="Short description" />
-              <Button type="submit" className="w-fit">Add Company</Button>
+              <Button type="submit" className="w-fit bg-blue-600 text-white hover:bg-blue-700">Add Company</Button>
             </form>
           </DialogContent>
         </Dialog>
       </section>
 
-      <section className="space-y-6">
-        {data.length === 0 && <Card className="p-10 text-muted-foreground text-center shadow-lg border-border bg-card">No companies yet. Add your first company to get started!</Card>}
+      <section className="space-y-8">
+        {data.length === 0 && <Card className="p-10 text-gray-400 text-center shadow-lg border border-gray-200 bg-white">No companies yet. Add your first company to get started!</Card>}
 
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3">
           {data.map((company) => (
-            <Card key={company.id} className="flex flex-col shadow-xl border border-border bg-card rounded-2xl overflow-hidden">
-              <CardHeader className="p-6">
-                <CardTitle className="flex items-center gap-4">
-                  <img src={company.imageURL} alt={company.name} className="w-14 h-14 rounded-xl border-2 border-border object-cover" />
-                  <div>
-                    <h3 className="font-bold text-lg">{company.name}</h3>
-                    <a href={company.link} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">{company.link}</a>
-                  </div>
-                </CardTitle>
+            <Card key={company.id} className="flex flex-col shadow-xl border-l-8 border-blue-400 border border-gray-200 bg-white rounded-2xl overflow-hidden">
+              <CardHeader className="p-6 pb-2 flex flex-row items-center gap-4">
+                <img src={company.imageURL} alt={company.name} className="w-16 h-16 rounded-xl border-2 border-blue-200 object-cover shadow" />
+                <div className="flex-1">
+                  <h3 className="font-bold text-xl text-blue-700">{company.name}</h3>
+                  <a href={company.link} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-500 hover:underline">{company.link}</a>
+                </div>
               </CardHeader>
               <CardContent className="px-6 pb-2 space-y-3">
-                <h4 className="font-semibold text-muted-foreground">Open Positions</h4>
-                {company.jobs.length === 0 && <p className="text-sm text-muted-foreground/80">No jobs yet.</p>}
-                {company.jobs.map((job) => (
-                  <Link key={job.id} href={`/jobs/${job.id}`} className="flex justify-between items-center p-3 rounded-lg hover:bg-background transition-colors border border-transparent hover:border-border">
-                    <span>{job.title}</span>
-                    <Badge variant={job.active ? "secondary" : "outline"}>{job.active ? "Active" : "Inactive"}</Badge>
-                  </Link>
-                ))}
+                <div className="text-gray-500 text-sm mb-2">{company.description}</div>
+                <h4 className="font-semibold text-gray-700 mb-1">Open Positions</h4>
+                {company.jobs.length === 0 && <p className="text-sm text-gray-400">No jobs yet.</p>}
+                <div className="flex flex-col gap-2">
+                  {company.jobs.map((job) => (
+                    <Link key={job.id} href={`/jobs/${job.id}`} className="flex justify-between items-center p-3 rounded-lg hover:bg-blue-50 transition-colors border border-transparent hover:border-blue-200">
+                      <span className="font-medium text-gray-800">{job.title}</span>
+                      <Badge variant={job.active ? "secondary" : "outline"} className={job.active ? 'bg-blue-100 text-blue-700 border-blue-200' : 'bg-gray-100 text-gray-500 border-gray-200'}>{job.active ? "Active" : "Inactive"}</Badge>
+                    </Link>
+                  ))}
+                </div>
               </CardContent>
               <CardFooter className="mt-auto p-0">
                 <Accordion type="single" collapsible className="w-full">
                   <AccordionItem value="add-job">
-                    <AccordionTrigger className="px-6 text-primary hover:text-primary/90 font-semibold">
+                    <AccordionTrigger className="px-6 text-blue-700 hover:text-blue-900 font-semibold">
                       Add New Job
                     </AccordionTrigger>
-                    <AccordionContent className="p-6 bg-background border-t">
+                    <AccordionContent className="p-6 bg-blue-50 border-t border-blue-100">
                       <form action={createJob} className="flex flex-col w-full gap-3">
                         <input type="hidden" name="companyId" value={company.id} />
                         <Input name="title" placeholder="Job title" required />
@@ -142,7 +143,7 @@ export default async function DashboardPage() {
                         <Input name="salary" placeholder="Salary" />
                         <Input name="deadline" type="date" />
                         <Textarea name="jobDescription" placeholder="Job description" />
-                        <Button type="submit" size="sm" className="bg-accent text-accent-foreground hover:bg-accent/90 transition-colors self-start">Add Job</Button>
+                        <Button type="submit" size="sm" className="bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600 transition self-start">Add Job</Button>
                       </form>
                     </AccordionContent>
                   </AccordionItem>
