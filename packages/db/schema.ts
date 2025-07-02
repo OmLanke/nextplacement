@@ -12,6 +12,8 @@ import {
   check,
 } from 'drizzle-orm/pg-core';
 
+export { createSelectSchema } from 'drizzle-zod';
+
 export const students = pgTable('students', {
   id: serial().primaryKey(),
   email: text().notNull(),
@@ -262,7 +264,6 @@ export const applicationsRelations = relations(applications, ({ one }) => ({
     references: [resumes.id],
   }),
 }));
-
 export const admins = pgTable('admins', {
   id: serial().primaryKey(),
   email: text().notNull().unique(),
@@ -272,3 +273,4 @@ export const admins = pgTable('admins', {
     .$onUpdate(() => new Date())
     .notNull(),
 });
+

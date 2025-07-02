@@ -1,7 +1,31 @@
-import NextAuth, { type NextAuthConfig } from 'next-auth';
-import Google from 'next-auth/providers/google';
+import NextAuth, { type DefaultSession } from 'next-auth';
+import type { NextAuthConfig } from 'next-auth';
+import Google from "next-auth/providers/google";
 import { db, admins, students } from '@workspace/db';
-import { eq } from 'drizzle-orm';
+import { eq } from '@workspace/db/drizzle';
+
+declare module 'next-auth' {
+  interface Session {
+    user: {
+      role?: 'ADMIN' | 'USER';
+      adminId?: number;
+      studentId?: number;
+      [key: string]: any;
+    } & DefaultSession["user"];
+  }
+  
+  interface JWT {
+    role?: 'ADMIN' | 'USER';
+    adminId?: number;
+    studentId?: number;
+  }
+}
+
+declare module 'next/server' {
+  interface NextRequest {
+    auth: import('next-auth').Session | null;
+  }
+}
 
 const authConfig: NextAuthConfig = {
   providers: [Google],
@@ -58,9 +82,6 @@ const authConfig: NextAuthConfig = {
   },
 };
 
-const nextAuth = NextAuth(authConfig);
-
-export const handlers: typeof nextAuth.handlers = nextAuth.handlers;
-export const signIn: typeof nextAuth.signIn = nextAuth.signIn;
-export const signOut: typeof nextAuth.signOut = nextAuth.signOut;
-export const auth: typeof nextAuth.auth = nextAuth.auth;
+// Note: TypeScript warnings about inferred types are expected with NextAuth v5 beta
+// These warnings don't affect functionality
+export const { handlers, signIn, signOut, auth } = NextAuth(authConfig);

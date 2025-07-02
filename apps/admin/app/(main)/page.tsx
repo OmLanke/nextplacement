@@ -1,7 +1,7 @@
 import Login from '@/components/login';
 import Studs from '@/components/studs';
 import { db, admins } from '@workspace/db';
-import { auth, signIn, signOut } from '@workspace/auth';
+import { auth, signIn, signOut } from '@/auth';
 
 async function getStudents() {
   'use server';

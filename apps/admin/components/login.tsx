@@ -1,5 +1,3 @@
-'use client';
-import { signIn } from '@workspace/auth';
 import { Button } from '@workspace/ui/components/button';
 
 export default function Login({ action }: { action: () => Promise<void> }) {

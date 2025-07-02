@@ -1,5 +1,5 @@
 import { Button } from '@workspace/ui/components/button';
-import { auth } from '@workspace/auth';
+import { auth } from '@/auth';
 
 export default async function Studs({
   action,

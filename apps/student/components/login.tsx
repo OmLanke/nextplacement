@@ -1,10 +1,8 @@
-'use client';
-import { signIn } from '@workspace/auth';
 import { Button } from '@workspace/ui/components/button';
 
-export default function Login({ logIn }: { logIn: () => Promise<void> }) {
+export default function Login({ action }: { action: () => Promise<void> }) {
   return (
-    <form action={logIn}>
+    <form action={action}>
       <Button type="submit" variant="outline" className="w-full h-12">
         <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/10 to-primary/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-out pointer-events-none" />
         <img
