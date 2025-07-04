@@ -12,7 +12,7 @@ import {
   check,
 } from 'drizzle-orm/pg-core';
 
-export { createSelectSchema } from 'drizzle-zod';
+export { createSelectSchema, createInsertSchema } from 'drizzle-zod';
 
 export const students = pgTable('students', {
   id: serial().primaryKey(),
@@ -49,7 +49,7 @@ export const students = pgTable('students', {
 
 export const internships = pgTable('internships', {
   id: serial().primaryKey(),
-  studentId: integer('student_id')
+  studentId: integer()
     .notNull()
     .references(() => students.id),
   title: text().notNull(),
@@ -101,7 +101,7 @@ export const internships = pgTable('internships', {
 
 export const resumes = pgTable('resumes', {
   id: serial().primaryKey(),
-  studentId: integer('student_id')
+  studentId: integer()
     .notNull()
     .references(() => students.id),
   title: text().notNull(),
@@ -116,7 +116,7 @@ export const resumes = pgTable('resumes', {
 export const grades = pgTable(
   'grades',
   {
-    studentId: integer('student_id')
+    studentId: integer()
       .notNull()
       .references(() => students.id),
     sem: integer().notNull(),
@@ -196,7 +196,7 @@ export const companies = pgTable('companies', {
 
 export const jobs = pgTable('jobs', {
   id: serial().primaryKey(),
-  companyId: integer('company_id')
+  companyId: integer()
     .notNull()
     .references(() => companies.id),
   title: text().notNull(),
@@ -221,13 +221,13 @@ export const jobs = pgTable('jobs', {
 
 export const applications = pgTable('applications', {
   id: serial().primaryKey(),
-  jobId: integer('job_id')
+  jobId: integer()
     .notNull()
     .references(() => jobs.id),
-  studentId: integer('student_id')
+  studentId: integer()
     .notNull()
     .references(() => students.id),
-  resumeId: integer('resume_id')
+  resumeId: integer()
     .notNull()
     .references(() => resumes.id),
   status: text().notNull().default('pending'),

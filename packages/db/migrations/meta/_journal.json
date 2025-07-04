@@ -43,6 +43,13 @@
       "when": 1751182452704,
       "tag": "0005_solid_photon",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1751619273079,
+      "tag": "0006_mysterious_lionheart",
+      "breakpoints": true
     }
   ]
 }

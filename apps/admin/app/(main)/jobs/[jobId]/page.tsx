@@ -15,7 +15,7 @@ export default async function JobDetailPage({ params }: JobPageProps) {
   if (isNaN(jobId)) notFound();
 
   const jobRes = await db.select().from(jobs).where(eq(jobs.id, jobId)).limit(1);
-  if (jobRes.length === 0) notFound();
+  if (jobRes.length === 0 || !jobRes[0]) notFound();
   const job = jobRes[0];
 
   const companyRes = await db.select().from(companies).where(eq(companies.id, job.companyId)).limit(1);

@@ -7,12 +7,9 @@ import { Button } from '@workspace/ui/components/button';
 export const dynamic = 'force-dynamic';
 
 async function getAllJobsWithCompany() {
-  const allJobs = await db.select().from(jobs);
-  const allCompanies = await db.select().from(companies);
-  return allJobs.map(job => ({
-    ...job,
-    company: allCompanies.find(c => c.id === job.companyId) || null,
-  }));
+  return await db.query.jobs.findMany({
+    with: { company: true },
+  });
 }
 
 export default async function JobsListPage() {

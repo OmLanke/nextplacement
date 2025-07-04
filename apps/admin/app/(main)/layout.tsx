@@ -8,7 +8,7 @@ const navLinks = [
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-[#f8fafc] font-sans">
+    <div className="min-h-screen bg-background font-sans">
       {/* Sticky top navbar */}
       <header className="sticky top-0 z-30 w-full bg-[#1e293b] shadow-lg">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-3">
@@ -30,7 +30,9 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
           </nav>
         </div>
       </header>
-      <main className="max-w-7xl mx-auto px-4 py-8 md:py-12 bg-[#f8fafc] min-h-screen">{children}</main>
+      <main className="max-w-7xl mx-auto px-4 py-8 md:py-12 bg-background min-h-screen">
+        {children}
+      </main>
     </div>
   );
 }
