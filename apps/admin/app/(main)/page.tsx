@@ -65,7 +65,7 @@ export default async function DashboardPage() {
   const data = await getDashboardData();
 
   return (
-    <div className="space-y-16 px-4 md:px-16 py-8 bg-white min-h-screen">
+    <div className="space-y-16 px-4 md:px-16 py-8 min-h-screen">
       <section className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-gray-800">Companies Dashboard</h1>
         <Dialog>
