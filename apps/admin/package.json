@@ -12,11 +12,14 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.4",
+    "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^5.1.1",
     "@tailwindcss/postcss": "^4.0.8",
     "@tanstack/react-table": "^8.21.3",
     "@workspace/db": "workspace:*",
     "@workspace/ui": "workspace:*",
+    "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.22.0",
     "lucide-react": "^0.475.0",
