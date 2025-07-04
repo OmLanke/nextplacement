@@ -238,7 +238,7 @@ export const applications = pgTable('applications', {
     .notNull(),
 });
 
-export const comapnyRelations = relations(companies, ({ many }) => ({
+export const companyRelations = relations(companies, ({ many }) => ({
   jobs: many(jobs),
 }));
 
