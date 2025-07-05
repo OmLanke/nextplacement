@@ -1,39 +1,47 @@
 import { ColumnDef } from '@tanstack/react-table';
-// Remove server-specific imports to avoid issues in client bundle
-// import { createSelectSchema, students } from '@workspace/db';
-// import * as z from 'zod/v4';
+import { students, internships, resumes, grades } from '@workspace/db/schema';
 import { Badge } from '@workspace/ui/components/badge';
 // import { Button } from '@workspace/ui/components/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar';
 import { Eye, Mail, Phone, MapPin, Calendar, GraduationCap } from 'lucide-react';
 
-// Define the Student interface locally to avoid importing server-side code
-export interface Student {
-  id: number;
-  email: string;
-  rollNumber: string | null;
-  verified: boolean;
-  firstName: string | null;
-  middleName: string | null;
-  lastName: string | null;
-  mothersName?: string | null;
-  gender?: string | null;
-  dob?: Date | null;
-  personalGmail?: string | null;
-  phoneNumber?: string | null;
-  address?: string | null;
-  profilePicture?: string | null;
-  degree?: string | null;
-  branch?: string | null;
-  year?: string | null;
-  skills?: string[] | null;
-  ssc?: number | null;
-  hsc?: number | null;
-  isDiploma?: boolean | null;
-  linkedin?: string | null;
-  github?: string | null;
-  createdAt?: Date;
-}
+type SelectStudent = typeof students.$inferSelect
+type SelectInternships = typeof internships.$inferSelect
+type SelectResume = typeof resumes.$inferSelect
+type SelectGrades = typeof grades.$inferSelect
+
+export type Student = SelectStudent & {
+  internships: SelectInternships[];
+  resumes: SelectResume[];
+  grades: SelectGrades[];
+};
+
+// export interface Student {
+//   id: number;
+//   email: string;
+//   rollNumber: string | null;
+//   verified: boolean;
+//   firstName: string | null;
+//   middleName: string | null;
+//   lastName: string | null;
+//   mothersName?: string | null;
+//   gender?: string | null;
+//   dob?: Date | null;
+//   personalGmail?: string | null;
+//   phoneNumber?: string | null;
+//   address?: string | null;
+//   profilePicture?: string | null;
+//   degree?: string | null;
+//   branch?: string | null;
+//   year?: string | null;
+//   skills?: string[] | null;
+//   ssc?: number | null;
+//   hsc?: number | null;
+//   isDiploma?: boolean | null;
+//   linkedin?: string | null;
+//   github?: string | null;
+//   createdAt?: Date;
+// }
 
 export const columns: ColumnDef<Student>[] = [
   {

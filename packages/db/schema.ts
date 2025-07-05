@@ -19,6 +19,7 @@ export const students = pgTable('students', {
   email: text().notNull(),
   rollNumber: varchar({ length: 12 }),
   verified: boolean().notNull().default(false),
+  markedOut: boolean().notNull().default(false),
   firstName: varchar({ length: 255 }),
   middleName: varchar({ length: 255 }),
   lastName: varchar({ length: 255 }),

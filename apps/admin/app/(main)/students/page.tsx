@@ -6,30 +6,25 @@ import { Button } from '@workspace/ui/components/button';
 import { revalidatePath } from 'next/cache';
 import { eq } from '@workspace/db/drizzle';
 import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/components/card';
-import { Badge } from '@workspace/ui/components/badge';
-import { Separator } from '@workspace/ui/components/separator';
 import { 
   Users, 
   Plus, 
   Search, 
   Filter, 
   Download,
-  Mail,
-  Phone,
-  MapPin,
-  Calendar,
-  GraduationCap,
   User,
-  Linkedin,
-  Github,
-  FileText,
-  Award,
-  BookOpen
 } from 'lucide-react';
 
 async function getData(): Promise<Student[]> {
   try {
-    const data = await db.select().from(students);
+    const data = await db.query.students.findMany({
+      with: {
+        internships: true,
+        resumes: true,
+        grades: true,
+      },
+      orderBy: (students, { asc }) => [asc(students.createdAt)],
+    });
     return data;
   } catch (error) {
     console.error('Database error:', error);
@@ -47,6 +42,16 @@ async function addStudent(formData: FormData) {
     await db.insert(students).values({ email });
   }
   revalidatePath('/students');
+}
+
+async function markoutAction(id: number, state: boolean) {
+  'use server';
+  try {
+    await db.update(students).set({ markedOut: state }).where(eq(students.id, id));
+    revalidatePath('/students');
+  } catch (error) {
+    console.error('Error marking student:', error);
+  }
 }
 
 async function StudentsTable() {
@@ -194,7 +199,7 @@ async function StudentsTable() {
                   </Button>
                 </div>
               ) : (
-                <DataTable data={data} />
+                <DataTable data={data} markoutAction={markoutAction}/>
               )}
             </CardContent>
           </Card>

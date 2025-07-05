@@ -1,11 +1,13 @@
 'use client';
 
+import React from 'react';
 import { Student } from './columns';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogClose,
 } from '@workspace/ui/components/dialog';
 import { Badge } from '@workspace/ui/components/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar';
@@ -20,7 +22,6 @@ import {
   User,
   Linkedin,
   Github,
-  FileText,
   Award,
   BookOpen,
   ExternalLink,
@@ -29,14 +30,16 @@ import {
   Download,
   Share2
 } from 'lucide-react';
+import { Switch } from '@workspace/ui/components/switch';
 
 interface StudentDetailsModalProps {
   student: Student;
   isOpen: boolean;
   onClose: () => void;
+  markoutAction: (state: boolean) => void;
 }
 
-export function StudentDetailsModal({ student, isOpen, onClose }: StudentDetailsModalProps) {
+export function StudentDetailsModal({ student, isOpen, onClose, markoutAction }: StudentDetailsModalProps) {
   const fullName = [
     student.firstName,
     student.middleName,
@@ -57,6 +60,17 @@ export function StudentDetailsModal({ student, isOpen, onClose }: StudentDetails
     return `${value}%`;
   };
 
+  const [markedOut, setMarkedOut] = React.useState(student.markedOut ?? false);
+
+  React.useEffect(() => {
+    setMarkedOut(student.markedOut ?? false);
+  }, [student.markedOut]);
+
+  const handleMarkoutChange = (checked: boolean) => {
+    setMarkedOut(checked);
+    markoutAction(checked);
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -65,14 +79,28 @@ export function StudentDetailsModal({ student, isOpen, onClose }: StudentDetails
             <DialogTitle className="text-2xl font-bold text-gray-800">
               Student Details
             </DialogTitle>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-              className="text-gray-500 hover:text-gray-700"
-            >
-              <X className="w-5 h-5" />
-            </Button>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Switch
+                  checked={markedOut}
+                  onCheckedChange={handleMarkoutChange}
+                  className={
+                    markedOut
+                      ? 'bg-red-600 border-red-600 focus-visible:ring-red-600/50'
+                      : 'bg-white border-gray-300 focus-visible:ring-gray-300/50'
+                  }
+                />
+                <span className={markedOut ? 'text-red-600 font-semibold' : 'text-gray-700'}>
+                  Marked Out
+                </span>
+              </div>
+              <DialogClose asChild>
+                <Button variant="outline" size="icon" className="text-gray-500 hover:text-gray-700">
+                  <X className="w-5 h-5" />
+                  <span className="sr-only">Close</span>
+                </Button>
+              </DialogClose>
+            </div>
           </div>
         </DialogHeader>
 
@@ -319,13 +347,9 @@ export function StudentDetailsModal({ student, isOpen, onClose }: StudentDetails
             <Button variant="outline" onClick={onClose}>
               Close
             </Button>
-            <Button className="flex items-center gap-2">
-              <Share2 className="w-4 h-4" />
-              Share Profile
-            </Button>
           </div>
         </div>
       </DialogContent>
     </Dialog>
   );
-} 
+}

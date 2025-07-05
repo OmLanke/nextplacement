@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import {
-  ColumnDef,
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
@@ -23,9 +22,10 @@ import { columns } from './columns';
 
 interface DataTableProps {
   data: Student[];
+  markoutAction: (id: number, state: boolean) => void;
 }
 
-export function DataTable({ data }: DataTableProps) {
+export function DataTable({ data, markoutAction }: DataTableProps) {
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -122,6 +122,9 @@ export function DataTable({ data }: DataTableProps) {
           student={selectedStudent}
           isOpen={isModalOpen}
           onClose={handleCloseModal}
+          markoutAction={(state: boolean) => {
+            markoutAction(selectedStudent.id, state);
+          }}
         />
       )}
     </>

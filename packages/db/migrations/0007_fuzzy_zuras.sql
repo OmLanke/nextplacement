@@ -1,0 +1,1 @@
+ALTER TABLE "students" ADD COLUMN "markedOut" boolean DEFAULT false NOT NULL;

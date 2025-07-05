@@ -50,6 +50,13 @@
       "when": 1751619273079,
       "tag": "0006_mysterious_lionheart",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1751727461248,
+      "tag": "0007_fuzzy_zuras",
+      "breakpoints": true
     }
   ]
 }
