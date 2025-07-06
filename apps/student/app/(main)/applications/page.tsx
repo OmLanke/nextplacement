@@ -16,54 +16,7 @@ import {
   Download,
   Share2
 } from "lucide-react"
-
-// Mock data for applications - in real app this would come from database
-const mockApplications = [
-  {
-    id: 1,
-    jobTitle: "Software Engineer Intern",
-    company: "TechCorp Solutions",
-    status: "pending",
-    appliedDate: "2024-01-15",
-    deadline: "2024-02-15",
-    location: "San Francisco, CA",
-    salary: "$25/hour",
-    resume: "Resume_v2.pdf"
-  },
-  {
-    id: 2,
-    jobTitle: "Data Analyst",
-    company: "DataFlow Inc",
-    status: "reviewed",
-    appliedDate: "2024-01-10",
-    deadline: "2024-02-10",
-    location: "New York, NY",
-    salary: "$30/hour",
-    resume: "Resume_v2.pdf"
-  },
-  {
-    id: 3,
-    jobTitle: "Frontend Developer",
-    company: "WebSolutions",
-    status: "accepted",
-    appliedDate: "2024-01-05",
-    deadline: "2024-02-05",
-    location: "Remote",
-    salary: "$28/hour",
-    resume: "Resume_v2.pdf"
-  },
-  {
-    id: 4,
-    jobTitle: "Product Manager Intern",
-    company: "InnovateTech",
-    status: "rejected",
-    appliedDate: "2024-01-01",
-    deadline: "2024-02-01",
-    location: "Seattle, WA",
-    salary: "$32/hour",
-    resume: "Resume_v2.pdf"
-  }
-]
+import { getStudentApplications } from "../actions"
 
 const getStatusConfig = (status: string) => {
   switch (status) {
@@ -100,15 +53,73 @@ const getStatusConfig = (status: string) => {
   }
 }
 
-export default function ApplicationsPage() {
-  const statusConfig = getStatusConfig('pending')
-  const StatusIcon = statusConfig.icon
+export default async function ApplicationsPage() {
+  // Get real applications data - using student ID 1 for demo
+  const { success, applications, error } = await getStudentApplications(1);
+  
+  // Fallback to mock data if database query fails
+  const mockApplications = [
+    {
+      id: 1,
+      job: {
+        title: "Software Engineer Intern",
+        company: { name: "TechCorp Solutions" },
+        location: "San Francisco, CA",
+        salary: "$25/hour",
+        applicationDeadline: new Date("2024-02-15")
+      },
+      resume: { title: "Resume_v2.pdf" },
+      status: "pending",
+      createdAt: new Date("2024-01-15")
+    },
+    {
+      id: 2,
+      job: {
+        title: "Data Analyst",
+        company: { name: "DataFlow Inc" },
+        location: "New York, NY",
+        salary: "$30/hour",
+        applicationDeadline: new Date("2024-02-10")
+      },
+      resume: { title: "Resume_v2.pdf" },
+      status: "reviewed",
+      createdAt: new Date("2024-01-10")
+    },
+    {
+      id: 3,
+      job: {
+        title: "Frontend Developer",
+        company: { name: "WebSolutions" },
+        location: "Remote",
+        salary: "$28/hour",
+        applicationDeadline: new Date("2024-02-05")
+      },
+      resume: { title: "Resume_v2.pdf" },
+      status: "accepted",
+      createdAt: new Date("2024-01-05")
+    },
+    {
+      id: 4,
+      job: {
+        title: "Product Manager Intern",
+        company: { name: "InnovateTech" },
+        location: "Seattle, WA",
+        salary: "$32/hour",
+        applicationDeadline: new Date("2024-02-01")
+      },
+      resume: { title: "Resume_v2.pdf" },
+      status: "rejected",
+      createdAt: new Date("2024-01-01")
+    }
+  ];
+
+  const allApplications = success && applications ? applications : mockApplications;
 
   // Calculate stats
-  const totalApplications = mockApplications.length
-  const pendingApplications = mockApplications.filter(app => app.status === 'pending').length
-  const acceptedApplications = mockApplications.filter(app => app.status === 'accepted').length
-  const rejectedApplications = mockApplications.filter(app => app.status === 'rejected').length
+  const totalApplications = allApplications.length;
+  const pendingApplications = allApplications.filter(app => app.status === 'pending').length;
+  const acceptedApplications = allApplications.filter(app => app.status === 'accepted').length;
+  const rejectedApplications = allApplications.filter(app => app.status === 'rejected').length;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
@@ -117,6 +128,12 @@ export default function ApplicationsPage() {
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">My Applications</h1>
           <p className="text-xl text-gray-600">Track your job applications and their status</p>
+          {!success && error && (
+            <div className="mt-4 p-3 bg-yellow-100 text-yellow-700 rounded-lg">
+              <AlertCircle className="w-4 h-4 inline mr-2" />
+              Using demo data: {error}
+            </div>
+          )}
         </div>
 
         {/* Stats Cards */}
@@ -180,9 +197,9 @@ export default function ApplicationsPage() {
             </Button>
           </div>
 
-          {mockApplications.map((application) => {
-            const appStatusConfig = getStatusConfig(application.status)
-            const AppStatusIcon = appStatusConfig.icon
+          {allApplications.map((application) => {
+            const appStatusConfig = getStatusConfig(application.status);
+            const AppStatusIcon = appStatusConfig.icon;
 
             return (
               <Card key={application.id} className="bg-white shadow-sm hover:shadow-lg transition-all duration-200">
@@ -193,20 +210,20 @@ export default function ApplicationsPage() {
                         <Building2 className="w-6 h-6 text-white" />
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-1">{application.jobTitle}</h3>
-                        <p className="text-blue-600 font-medium">{application.company}</p>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-1">{application.job.title}</h3>
+                        <p className="text-blue-600 font-medium">{application.job.company.name}</p>
                         <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
                           <span className="flex items-center gap-1">
                             <Calendar className="w-4 h-4" />
-                            Applied: {application.appliedDate}
+                            Applied: {application.createdAt.toLocaleDateString()}
                           </span>
                           <span className="flex items-center gap-1">
                             <MapPin className="w-4 h-4" />
-                            {application.location}
+                            {application.job.location}
                           </span>
                           <span className="flex items-center gap-1">
                             <DollarSign className="w-4 h-4" />
-                            {application.salary}
+                            {application.job.salary}
                           </span>
                         </div>
                       </div>
@@ -228,11 +245,11 @@ export default function ApplicationsPage() {
                     <div className="flex items-center gap-4 text-sm text-gray-600">
                       <span className="flex items-center gap-1">
                         <FileText className="w-4 h-4" />
-                        Resume: {application.resume}
+                        Resume: {application.resume.title}
                       </span>
                       <span className="flex items-center gap-1">
                         <Calendar className="w-4 h-4" />
-                        Deadline: {application.deadline}
+                        Deadline: {application.job.applicationDeadline.toLocaleDateString()}
                       </span>
                     </div>
                     <div className="flex gap-2">
@@ -253,7 +270,7 @@ export default function ApplicationsPage() {
         </div>
 
         {/* Empty State */}
-        {mockApplications.length === 0 && (
+        {allApplications.length === 0 && (
           <Card className="bg-white shadow-sm">
             <CardContent className="p-12 text-center">
               <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />

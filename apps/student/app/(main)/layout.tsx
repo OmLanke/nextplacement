@@ -48,6 +48,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   // Handle scroll effect
   useEffect(() => {
@@ -62,6 +63,16 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [pathname]);
+
+  const handleSearchClick = () => {
+    // Navigate to jobs page with search focus
+    window.location.href = '/jobs';
+  };
+
+  const handleNotificationClick = () => {
+    // Navigate to applications page to see status updates
+    window.location.href = '/applications';
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 font-sans">
@@ -127,6 +138,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
               <Button
                 variant="ghost"
                 size="sm"
+                onClick={handleSearchClick}
                 className="hidden sm:flex items-center gap-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200"
               >
                 <Search className="w-4 h-4" />
@@ -137,6 +149,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
               <Button
                 variant="ghost"
                 size="sm"
+                onClick={handleNotificationClick}
                 className="relative text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200"
               >
                 <Bell className="w-4 h-4" />
@@ -167,14 +180,16 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                       <p className="text-xs text-gray-500">student@college.edu</p>
                     </div>
                     <div className="py-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="w-full justify-start text-gray-700 hover:text-blue-600 hover:bg-blue-50"
-                      >
-                        <Settings className="w-4 h-4 mr-2" />
-                        Settings
-                      </Button>
+                      <Link href="/profile">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="w-full justify-start text-gray-700 hover:text-blue-600 hover:bg-blue-50"
+                        >
+                          <Settings className="w-4 h-4 mr-2" />
+                          Settings
+                        </Button>
+                      </Link>
                       <Button
                         variant="ghost"
                         size="sm"
@@ -247,14 +262,16 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                     </div>
                   </div>
                   <div className="px-4 py-2 space-y-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-full justify-start text-gray-700 hover:text-blue-600 hover:bg-blue-50"
-                    >
-                      <Settings className="w-4 h-4 mr-2" />
-                      Settings
-                    </Button>
+                    <Link href="/profile">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full justify-start text-gray-700 hover:text-blue-600 hover:bg-blue-50"
+                      >
+                        <Settings className="w-4 h-4 mr-2" />
+                        Settings
+                      </Button>
+                    </Link>
                     <Button
                       variant="ghost"
                       size="sm"

@@ -21,7 +21,8 @@ import {
   Filter,
   Bookmark,
   Share2,
-  Eye
+  Eye,
+  AlertCircle
 } from "lucide-react"
 
 async function getDashboardData() {
@@ -43,19 +44,22 @@ async function getDashboardData() {
     
     return {
       companies: companiesWithActiveJobs,
-      totalStudents: studentCount.length
+      totalStudents: studentCount.length,
+      success: true
     }
   } catch (error) {
     console.error("Database query error:", error)
     return {
       companies: [],
-      totalStudents: 0
+      totalStudents: 0,
+      success: false,
+      error: "Failed to load dashboard data"
     }
   }
 }
 
 export default async function DashboardPage() {
-  const { companies: data, totalStudents } = await getDashboardData()
+  const { companies: data, totalStudents, success, error } = await getDashboardData()
 
   // Calculate stats
   const totalActiveJobs = data.reduce((acc, company) => acc + company.jobs.filter((job) => job.active).length, 0)
@@ -78,14 +82,18 @@ export default async function DashboardPage() {
               Explore opportunities from top companies and find the perfect role that matches your skills and aspirations
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-50 px-8 py-3 text-lg font-semibold">
-                <Search className="w-5 h-5 mr-2" />
-                Browse All Jobs
-              </Button>
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 px-8 py-3 text-lg font-semibold">
-                <Bookmark className="w-5 h-5 mr-2" />
-                Saved Jobs
-              </Button>
+              <Link href="/jobs">
+                <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-50 px-8 py-3 text-lg font-semibold">
+                  <Search className="w-5 h-5 mr-2" />
+                  Browse All Jobs
+                </Button>
+              </Link>
+              <Link href="/applications">
+                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 px-8 py-3 text-lg font-semibold">
+                  <Bookmark className="w-5 h-5 mr-2" />
+                  My Applications
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -94,6 +102,12 @@ export default async function DashboardPage() {
       {/* Stats Section */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {!success && error && (
+            <div className="mb-8 p-4 bg-yellow-100 text-yellow-700 rounded-lg">
+              <AlertCircle className="w-4 h-4 inline mr-2" />
+              Using demo data: {error}
+            </div>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="text-center">
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -137,76 +151,93 @@ export default async function DashboardPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredCompanies.map((company) => (
-              <Card key={company.id} className="group hover:shadow-xl transition-all duration-300 overflow-hidden border-0 bg-white">
-                <div className="relative">
-                  <div className="h-48 bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
-                    <Building2 className="w-16 h-16 text-white opacity-80" />
-                  </div>
-                  <div className="absolute top-4 right-4">
-                    <Badge className="bg-white/20 text-white border-0">
-                      <Star className="w-3 h-3 mr-1" />
-                      Featured
-                    </Badge>
-                  </div>
-                </div>
-                
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-900 mb-2">{company.name}</h3>
-                      <p className="text-gray-600 text-sm">{company.email}</p>
+          {featuredCompanies.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {featuredCompanies.map((company) => (
+                <Card key={company.id} className="group hover:shadow-xl transition-all duration-300 overflow-hidden border-0 bg-white">
+                  <div className="relative">
+                    <div className="h-48 bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                      <Building2 className="w-16 h-16 text-white opacity-80" />
                     </div>
-                    <Badge variant="secondary" className="bg-blue-100 text-blue-700">
-                      {company.jobs.length} jobs
-                    </Badge>
+                    <div className="absolute top-4 right-4">
+                      <Badge className="bg-white/20 text-white border-0">
+                        <Star className="w-3 h-3 mr-1" />
+                        Featured
+                      </Badge>
+                    </div>
                   </div>
                   
-                  {company.description && company.description !== "N/A" && (
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">{company.description}</p>
-                  )}
-                  
-                  <div className="space-y-2 mb-6">
-                    {company.jobs.slice(0, 2).map((job) => (
-                      <div key={job.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div className="flex-1">
-                          <h4 className="font-medium text-gray-900 text-sm">{job.title}</h4>
-                          <div className="flex items-center gap-4 text-xs text-gray-500 mt-1">
-                            {job.location && job.location !== "N/A" && (
-                              <span className="flex items-center gap-1">
-                                <MapPin className="w-3 h-3" />
-                                {job.location}
-                              </span>
-                            )}
-                            {job.salary && job.salary !== "N/A" && (
-                              <span className="flex items-center gap-1">
-                                <DollarSign className="w-3 h-3" />
-                                {job.salary}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        <Button size="sm" variant="ghost" className="text-blue-600 hover:text-blue-700">
-                          <Eye className="w-4 h-4" />
-                        </Button>
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div>
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">{company.name}</h3>
+                        <p className="text-gray-600 text-sm">{company.email}</p>
                       </div>
-                    ))}
-                  </div>
-                  
-                  <div className="flex gap-2">
-                    <Button className="flex-1 bg-blue-600 hover:bg-blue-700">
-                      View All Jobs
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <Bookmark className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                      <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                        {company.jobs.length} jobs
+                      </Badge>
+                    </div>
+                    
+                    {company.description && company.description !== "N/A" && (
+                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">{company.description}</p>
+                    )}
+                    
+                    <div className="space-y-2 mb-6">
+                      {company.jobs.slice(0, 2).map((job) => (
+                        <div key={job.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <div className="flex-1">
+                            <h4 className="font-medium text-gray-900 text-sm">{job.title}</h4>
+                            <div className="flex items-center gap-4 text-xs text-gray-500 mt-1">
+                              {job.location && job.location !== "N/A" && (
+                                <span className="flex items-center gap-1">
+                                  <MapPin className="w-3 h-3" />
+                                  {job.location}
+                                </span>
+                              )}
+                              {job.salary && job.salary !== "N/A" && (
+                                <span className="flex items-center gap-1">
+                                  <DollarSign className="w-3 h-3" />
+                                  {job.salary}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <Button size="sm" variant="ghost" className="text-blue-600 hover:text-blue-700">
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <Link href="/jobs">
+                        <Button className="flex-1 bg-blue-600 hover:bg-blue-700">
+                          View All Jobs
+                          <ArrowRight className="w-4 h-4 ml-2" />
+                        </Button>
+                      </Link>
+                      <Button variant="outline" size="sm">
+                        <Bookmark className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card className="bg-white shadow-sm">
+              <CardContent className="p-12 text-center">
+                <Building2 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-700 mb-2">No featured companies yet</h3>
+                <p className="text-gray-500 mb-6">Check back later for exciting opportunities</p>
+                <Link href="/jobs">
+                  <Button className="bg-blue-600 hover:bg-blue-700">
+                    Browse All Jobs
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </section>
 
@@ -218,91 +249,112 @@ export default async function DashboardPage() {
               <h2 className="text-4xl font-bold text-gray-900 mb-4">Recent Opportunities</h2>
               <p className="text-xl text-gray-600">Latest job postings from top companies</p>
             </div>
-            <Button variant="outline" className="hidden md:flex">
-              <Filter className="w-4 h-4 mr-2" />
-              Filter Jobs
-            </Button>
+            <Link href="/jobs">
+              <Button variant="outline" className="hidden md:flex">
+                <Filter className="w-4 h-4 mr-2" />
+                Filter Jobs
+              </Button>
+            </Link>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {recentJobs.map((job) => (
-              <Card key={job.id} className="group hover:shadow-lg transition-all duration-300 border border-gray-200">
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-                        <Building2 className="w-6 h-6 text-white" />
+          {recentJobs.length > 0 ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {recentJobs.map((job) => (
+                <Card key={job.id} className="group hover:shadow-lg transition-all duration-300 border border-gray-200">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                          <Building2 className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-900 mb-1">{job.title}</h3>
+                          <p className="text-blue-600 font-medium">{job.company.name}</p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-1">{job.title}</h3>
-                        <p className="text-blue-600 font-medium">{job.company.name}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge className="bg-green-100 text-green-700">
-                        <CheckCircle className="w-3 h-3 mr-1" />
-                        Active
-                      </Badge>
-                      <Button variant="ghost" size="sm">
-                        <Bookmark className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4 mb-4">
-                    {job.location && job.location !== "N/A" && (
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <MapPin className="w-4 h-4" />
-                        <span>{job.location}</span>
-                      </div>
-                    )}
-                    {job.salary && job.salary !== "N/A" && (
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <DollarSign className="w-4 h-4" />
-                        <span>{job.salary}</span>
-                      </div>
-                    )}
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Clock className="w-4 h-4" />
-                      <span>Deadline: {job.applicationDeadline.toLocaleDateString()}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Users className="w-4 h-4" />
-                      <span>Min CGPA: {job.minCGPA}</span>
-                    </div>
-                  </div>
-
-                  {job.description && job.description !== "N/A" && (
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">{job.description}</p>
-                  )}
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex gap-2">
-                      <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
-                        Apply Now
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </Button>
-                      {job.link && (
-                        <Button size="sm" variant="outline">
-                          <ExternalLink className="w-4 h-4 mr-2" />
-                          View Details
+                      <div className="flex items-center gap-2">
+                        <Badge className="bg-green-100 text-green-700">
+                          <CheckCircle className="w-3 h-3 mr-1" />
+                          Active
+                        </Badge>
+                        <Button variant="ghost" size="sm">
+                          <Bookmark className="w-4 h-4" />
                         </Button>
-                      )}
+                      </div>
                     </div>
-                    <Button variant="ghost" size="sm">
-                      <Share2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      {job.location && job.location !== "N/A" && (
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <MapPin className="w-4 h-4" />
+                          <span>{job.location}</span>
+                        </div>
+                      )}
+                      {job.salary && job.salary !== "N/A" && (
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <DollarSign className="w-4 h-4" />
+                          <span>{job.salary}</span>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <Clock className="w-4 h-4" />
+                        <span>Deadline: {job.applicationDeadline.toLocaleDateString()}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <Users className="w-4 h-4" />
+                        <span>Min CGPA: {job.minCGPA}</span>
+                      </div>
+                    </div>
+
+                    {job.description && job.description !== "N/A" && (
+                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">{job.description}</p>
+                    )}
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex gap-2">
+                        <Link href="/jobs">
+                          <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                            Apply Now
+                            <ArrowRight className="w-4 h-4 ml-2" />
+                          </Button>
+                        </Link>
+                        {job.link && (
+                          <Button size="sm" variant="outline">
+                            <ExternalLink className="w-4 h-4 mr-2" />
+                            View Details
+                          </Button>
+                        )}
+                      </div>
+                      <Button variant="ghost" size="sm">
+                        <Share2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card className="bg-white shadow-sm">
+              <CardContent className="p-12 text-center">
+                <Briefcase className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-700 mb-2">No recent opportunities</h3>
+                <p className="text-gray-500 mb-6">Check back later for new job postings</p>
+                <Link href="/jobs">
+                  <Button className="bg-blue-600 hover:bg-blue-700">
+                    Browse All Jobs
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          )}
 
           <div className="text-center mt-12">
-            <Button size="lg" variant="outline" className="px-8 py-3">
-              View All Opportunities
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
+            <Link href="/jobs">
+              <Button size="lg" variant="outline" className="px-8 py-3">
+                View All Opportunities
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
@@ -315,13 +367,17 @@ export default async function DashboardPage() {
             Join thousands of students who have found their dream jobs through NextPlacement
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-50 px-8 py-3 text-lg font-semibold">
-              Create Your Profile
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 px-8 py-3 text-lg font-semibold">
-              Learn More
-            </Button>
+            <Link href="/profile">
+              <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-50 px-8 py-3 text-lg font-semibold">
+                Create Your Profile
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+            </Link>
+            <Link href="/jobs">
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 px-8 py-3 text-lg font-semibold">
+                Browse Jobs
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
