@@ -3,16 +3,34 @@ import { Button } from "@workspace/ui/components/button"
 import { Badge } from "@workspace/ui/components/badge"
 import { Separator } from "@workspace/ui/components/separator"
 import Link from "next/link"
-import { db, companies } from "@workspace/db"
-import { Plus, Building2, Briefcase, MapPin, DollarSign, Calendar, ExternalLink } from "lucide-react"
+import { db, companies, jobs, students } from "@workspace/db"
+import { 
+  Building2, 
+  Briefcase, 
+  MapPin, 
+  DollarSign, 
+  Calendar, 
+  ExternalLink,
+  TrendingUp,
+  Users,
+  Star,
+  Clock,
+  CheckCircle,
+  ArrowRight,
+  Search,
+  Filter,
+  Bookmark,
+  Share2,
+  Eye
+} from "lucide-react"
 
 async function getDashboardData() {
   try {
-    // Get companies with their jobs
+    // Get companies with their active jobs
     const result = await db.query.companies.findMany({
       with: {
         jobs: {
-          where: (job, {eq}) => eq(job.active, true), // Only include active jobs
+          where: (job, {eq}) => eq(job.active, true),
         }
       }
     })
@@ -20,201 +38,293 @@ async function getDashboardData() {
     // Filter to only include companies that have active jobs
     const companiesWithActiveJobs = result.filter((company) => company.jobs.length > 0)
 
-    console.log("Companies with active jobs:", companiesWithActiveJobs.length)
-    return companiesWithActiveJobs
+    // Get total student count for stats
+    const studentCount = await db.select().from(students)
+    
+    return {
+      companies: companiesWithActiveJobs,
+      totalStudents: studentCount.length
+    }
   } catch (error) {
     console.error("Database query error:", error)
-    // Fallback to companies only if the relation query fails
-    const companiesOnly = await db.select().from(companies)
-    return companiesOnly.map((company) => ({ ...company, jobs: [] }))
+    return {
+      companies: [],
+      totalStudents: 0
+    }
   }
 }
 
 export default async function DashboardPage() {
-  const data = await getDashboardData()
+  const { companies: data, totalStudents } = await getDashboardData()
 
-  // Calculate stats for companies with active jobs only
+  // Calculate stats
   const totalActiveJobs = data.reduce((acc, company) => acc + company.jobs.filter((job) => job.active).length, 0)
+  const featuredCompanies = data.slice(0, 3) // Top 3 companies for featured section
+  const recentJobs = data.flatMap(company => 
+    company.jobs.slice(0, 2).map(job => ({ ...job, company }))
+  ).slice(0, 6)
 
   return (
-    <div className="min-h-screen bg-gradient-to-br">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header Section */}
-        <section className="mb-12">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-            <div>
-              <h1 className="text-4xl font-bold text-gray-800 mb-2">Companies Dashboard</h1>
-              <p className="text-gray-600 text-lg">Companies with active job listings</p>
-            </div>
-            <Link href="/jobs/new">
-              <Button className="flex items-center gap-2 px-6 py-3 text-base font-medium shadow-lg hover:shadow-xl transition-all duration-200">
-                <Plus className="w-5 h-5" />
-                Add New Job
+    <div className="min-h-screen">
+      {/* Hero Section */}
+      <section className="relative bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 text-white py-20">
+        <div className="absolute inset-0 bg-black/10"></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h1 className="text-5xl md:text-6xl font-bold mb-6">
+              Discover Your Dream Career
+            </h1>
+            <p className="text-xl md:text-2xl text-blue-100 mb-8 max-w-3xl mx-auto">
+              Explore opportunities from top companies and find the perfect role that matches your skills and aspirations
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-50 px-8 py-3 text-lg font-semibold">
+                <Search className="w-5 h-5 mr-2" />
+                Browse All Jobs
               </Button>
-            </Link>
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 px-8 py-3 text-lg font-semibold">
+                <Bookmark className="w-5 h-5 mr-2" />
+                Saved Jobs
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Building2 className="w-8 h-8 text-blue-600" />
+              </div>
+              <h3 className="text-3xl font-bold text-gray-900 mb-2">{data.length}</h3>
+              <p className="text-gray-600">Active Companies</p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Briefcase className="w-8 h-8 text-green-600" />
+              </div>
+              <h3 className="text-3xl font-bold text-gray-900 mb-2">{totalActiveJobs}</h3>
+              <p className="text-gray-600">Open Positions</p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Users className="w-8 h-8 text-purple-600" />
+              </div>
+              <h3 className="text-3xl font-bold text-gray-900 mb-2">{totalStudents}</h3>
+              <p className="text-gray-600">Students</p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <TrendingUp className="w-8 h-8 text-orange-600" />
+              </div>
+              <h3 className="text-3xl font-bold text-gray-900 mb-2">95%</h3>
+              <p className="text-gray-600">Success Rate</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Companies Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Featured Companies</h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Top companies actively hiring talented students like you
+            </p>
           </div>
 
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <Card className="bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Companies with Active Jobs</p>
-                    <p className="text-3xl font-bold text-gray-800">{data.length}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {featuredCompanies.map((company) => (
+              <Card key={company.id} className="group hover:shadow-xl transition-all duration-300 overflow-hidden border-0 bg-white">
+                <div className="relative">
+                  <div className="h-48 bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <Building2 className="w-16 h-16 text-white opacity-80" />
                   </div>
-                  <Building2 className="w-8 h-8 text-gray-400" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Total Active Jobs</p>
-                    <p className="text-3xl font-bold text-gray-800">{totalActiveJobs}</p>
-                  </div>
-                  <Briefcase className="w-8 h-8 text-gray-400" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Avg Jobs per Company</p>
-                    <p className="text-3xl font-bold text-gray-800">
-                      {data.length > 0 ? Math.round((totalActiveJobs / data.length) * 10) / 10 : 0}
-                    </p>
-                  </div>
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                    <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                  <div className="absolute top-4 right-4">
+                    <Badge className="bg-white/20 text-white border-0">
+                      <Star className="w-3 h-3 mr-1" />
+                      Featured
+                    </Badge>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-        </section>
-
-        {/* Companies Section */}
-        <section className="space-y-8">
-          {data.length === 0 ? (
-            <Card className="bg-white shadow-sm">
-              <CardContent className="p-12 text-center">
-                <Building2 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-700 mb-2">No companies with active jobs</h3>
-                <p className="text-gray-500 mb-6">Get started by adding your first job listing</p>
-                <Link href="/jobs/new">
-                  <Button className="flex items-center gap-2">
-                    <Plus className="w-4 h-4" />
-                    Add Job
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-          ) : (
-            data.map((company) => (
-              <Card
-                key={company.id}
-                className="bg-white shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
-              >
-                <CardHeader className="pb-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                        <Building2 className="w-6 h-6 text-gray-600" />
-                      </div>
-                      <div>
-                        <CardTitle className="text-xl font-semibold text-gray-800">{company.name}</CardTitle>
-                        <p className="text-sm text-gray-500 mt-1">{company.email}</p>
-                      </div>
+                
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900 mb-2">{company.name}</h3>
+                      <p className="text-gray-600 text-sm">{company.email}</p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary" className="text-xs">
-                        {company.jobs.filter((job) => job.active).length} active job
-                        {company.jobs.filter((job) => job.active).length !== 1 ? "s" : ""}
-                      </Badge>
-                    </div>
+                    <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                      {company.jobs.length} jobs
+                    </Badge>
                   </div>
+                  
                   {company.description && company.description !== "N/A" && (
-                    <p className="text-sm text-gray-600 mt-3">{company.description}</p>
+                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">{company.description}</p>
                   )}
-                </CardHeader>
-
-                <Separator />
-
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-medium text-gray-700">Active Job Listings</h3>
+                  
+                  <div className="space-y-2 mb-6">
+                    {company.jobs.slice(0, 2).map((job) => (
+                      <div key={job.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div className="flex-1">
+                          <h4 className="font-medium text-gray-900 text-sm">{job.title}</h4>
+                          <div className="flex items-center gap-4 text-xs text-gray-500 mt-1">
+                            {job.location && job.location !== "N/A" && (
+                              <span className="flex items-center gap-1">
+                                <MapPin className="w-3 h-3" />
+                                {job.location}
+                              </span>
+                            )}
+                            {job.salary && job.salary !== "N/A" && (
+                              <span className="flex items-center gap-1">
+                                <DollarSign className="w-3 h-3" />
+                                {job.salary}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <Button size="sm" variant="ghost" className="text-blue-600 hover:text-blue-700">
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
                   </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    {company.jobs
-                      .filter((job) => job.active)
-                      .map((job) => (
-                        <Card
-                          key={job.id}
-                          className="group hover:shadow-lg transition-all duration-200 border border-gray-200 bg-gray-50 hover:bg-white"
-                        >
-                          <CardContent className="p-4">
-                            <div className="space-y-3">
-                              <div className="flex items-start justify-between">
-                                <h4 className="font-medium text-gray-800 text-sm leading-tight line-clamp-2">
-                                  {job.title}
-                                </h4>
-                                <Badge
-                                  variant="default"
-                                  className="text-xs bg-blue-100 text-blue-700 hover:bg-blue-200"
-                                >
-                                  Active
-                                </Badge>
-                              </div>
-
-                              <div className="space-y-2">
-                                {job.location && job.location !== "N/A" && (
-                                  <div className="flex items-center gap-1 text-xs text-gray-500">
-                                    <MapPin className="w-3 h-3" />
-                                    <span className="truncate">{job.location}</span>
-                                  </div>
-                                )}
-                                {job.salary && job.salary !== "N/A" && (
-                                  <div className="flex items-center gap-1 text-xs text-gray-500">
-                                    <DollarSign className="w-3 h-3" />
-                                    <span className="truncate">{job.salary}</span>
-                                  </div>
-                                )}
-                                <div className="flex items-center gap-1 text-xs text-gray-500">
-                                  <Calendar className="w-3 h-3" />
-                                  <span>Deadline: {job.applicationDeadline.toLocaleDateString()}</span>
-                                </div>
-                              </div>
-
-                              {job.link && (
-                                <div className="pt-2">
-                                  <a
-                                    href={job.link}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 font-medium group-hover:underline"
-                                  >
-                                    View Job
-                                    <ExternalLink className="w-3 h-3" />
-                                  </a>
-                                </div>
-                              )}
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
+                  
+                  <div className="flex gap-2">
+                    <Button className="flex-1 bg-blue-600 hover:bg-blue-700">
+                      View All Jobs
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <Bookmark className="w-4 h-4" />
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
-            ))
-          )}
-        </section>
-      </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Recent Job Opportunities */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-12">
+            <div>
+              <h2 className="text-4xl font-bold text-gray-900 mb-4">Recent Opportunities</h2>
+              <p className="text-xl text-gray-600">Latest job postings from top companies</p>
+            </div>
+            <Button variant="outline" className="hidden md:flex">
+              <Filter className="w-4 h-4 mr-2" />
+              Filter Jobs
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {recentJobs.map((job) => (
+              <Card key={job.id} className="group hover:shadow-lg transition-all duration-300 border border-gray-200">
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                        <Building2 className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-1">{job.title}</h3>
+                        <p className="text-blue-600 font-medium">{job.company.name}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge className="bg-green-100 text-green-700">
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                        Active
+                      </Badge>
+                      <Button variant="ghost" size="sm">
+                        <Bookmark className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    {job.location && job.location !== "N/A" && (
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <MapPin className="w-4 h-4" />
+                        <span>{job.location}</span>
+                      </div>
+                    )}
+                    {job.salary && job.salary !== "N/A" && (
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <DollarSign className="w-4 h-4" />
+                        <span>{job.salary}</span>
+                      </div>
+                    )}
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <Clock className="w-4 h-4" />
+                      <span>Deadline: {job.applicationDeadline.toLocaleDateString()}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <Users className="w-4 h-4" />
+                      <span>Min CGPA: {job.minCGPA}</span>
+                    </div>
+                  </div>
+
+                  {job.description && job.description !== "N/A" && (
+                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">{job.description}</p>
+                  )}
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex gap-2">
+                      <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                        Apply Now
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Button>
+                      {job.link && (
+                        <Button size="sm" variant="outline">
+                          <ExternalLink className="w-4 h-4 mr-2" />
+                          View Details
+                        </Button>
+                      )}
+                    </div>
+                    <Button variant="ghost" size="sm">
+                      <Share2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          <div className="text-center mt-12">
+            <Button size="lg" variant="outline" className="px-8 py-3">
+              View All Opportunities
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Call to Action */}
+      <section className="py-20 bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
+        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+          <h2 className="text-4xl font-bold mb-6">Ready to Start Your Career Journey?</h2>
+          <p className="text-xl text-blue-100 mb-8">
+            Join thousands of students who have found their dream jobs through NextPlacement
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-50 px-8 py-3 text-lg font-semibold">
+              Create Your Profile
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
+            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 px-8 py-3 text-lg font-semibold">
+              Learn More
+            </Button>
+          </div>
+        </div>
+      </section>
     </div>
   )
 }
