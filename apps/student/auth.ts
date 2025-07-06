@@ -19,7 +19,7 @@ declare module 'next-auth' {
     role?: 'ADMIN' | 'USER';
     adminId?: number;
     studentId?: number;
-    completedProfile?: boolean;
+    // completedProfile?: boolean; // Removed from JWT
   }
 }
 
@@ -33,41 +33,43 @@ const authConfig: NextAuthConfig = {
   providers: [Google],
   callbacks: {
     async jwt({ token, account, user }) {
-      // Only check DB on first sign in
-      if (account && user && user.email) {
-        const admin = await db.select().from(admins).where(eq(admins.email, user.email)).limit(1);
-        if (admin.length > 0 && admin[0]) {
-          token.role = 'ADMIN';
-          token.adminId = admin[0].id;
-          token.completedProfile = true;
-        } else {
+      // Only set role, adminId, studentId, and email in JWT
+      const email = user?.email || token?.email;
+      if (!email) return token;
+
+      const admin = await db.select().from(admins).where(eq(admins.email, email)).limit(1);
+      if (admin.length > 0 && admin[0]) {
+        token.role = 'ADMIN';
+        token.adminId = admin[0].id;
+        token.email = email;
+        return token;
+      }
+
+      let student = await db.select().from(students).where(eq(students.email, email)).limit(1);
+      if (student.length > 0 && student[0]) {
+        token.role = 'USER';
+        token.studentId = student[0].id;
+        token.email = email;
+        return token;
+      }
+
+      if (user) {
+        const nameParts = user.name?.split(' ') ?? [];
+        const firstName = nameParts[0] || '';
+        const lastName = nameParts.slice(1).join(' ') || '';
+        const newStudent = await db
+          .insert(students)
+          .values({
+            email: email,
+            firstName: firstName,
+            lastName: lastName,
+            profilePicture: user.image,
+          })
+          .returning({ id: students.id });
+        if (newStudent[0]) {
           token.role = 'USER';
-          const student = await db
-            .select()
-            .from(students)
-            .where(eq(students.email, user.email))
-            .limit(1);
-          if (student.length > 0 && student[0]) {
-            token.studentId = student[0].id;
-            token.completedProfile = student[0].rollNumber ? true : false;
-          } else {
-            const nameParts = user.name?.split(' ') ?? [];
-            const firstName = nameParts[0] || '';
-            const lastName = nameParts.slice(1).join(' ') || '';
-            const newStudent = await db
-              .insert(students)
-              .values({
-                email: user.email,
-                firstName: firstName,
-                lastName: lastName,
-                profilePicture: user.image,
-              })
-              .returning({ id: students.id });
-            if (newStudent[0]) {
-              token.studentId = newStudent[0].id;
-              token.completedProfile = false;
-            }
-          }
+          token.studentId = newStudent[0].id;
+          token.email = email;
         }
       }
       return token;
@@ -82,8 +84,12 @@ const authConfig: NextAuthConfig = {
       if (token?.studentId) {
         session.user.studentId = token.studentId as number;
       }
-      if (token?.completedProfile !== undefined) {
-        session.user.completedProfile = token.completedProfile as boolean;
+      // Fetch completedProfile from DB for students only
+      if (token?.role === 'USER' && token?.studentId) {
+        const student = await db.select().from(students).where(eq(students.id, token.studentId as number)).limit(1);
+        session.user.completedProfile = student[0]?.rollNumber ? true : false;
+      } else if (token?.role === 'ADMIN') {
+        session.user.completedProfile = true;
       }
       return session;
     },

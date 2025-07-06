@@ -4,7 +4,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -13,6 +13,7 @@ import { Button } from '@workspace/ui/components/button';
 import { Progress } from '@workspace/ui/components/progress';
 import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/components/card';
 import { Form } from '@workspace/ui/components/form';
+import { useRouter } from 'next/navigation';
 
 import { studentSignupSchema, StudentSignup } from './schema';
 import PersonalDetailsStep from './steps/PersonalDetailsStep';
@@ -22,9 +23,29 @@ import AdditionalDetailsStep from './steps/AdditionalDetailsStep';
 import InternshipStep from './steps/InternshipStep';
 import ResumeStep from './steps/ResumeStep';
 
+import { signupAction } from './action';
+
 const steps = [
-  { id: 1, title: 'Personal Details', fields: ['firstName', 'lastName', 'mothersName', 'rollNumber', 'phoneNumber', 'address', 'gender', 'dob', 'personalGmail'] },
-  { id: 2, title: 'Academic Details', fields: ['degree', 'year', 'branch', 'ssc', 'hsc', 'isDiploma'] },
+  {
+    id: 1,
+    title: 'Personal Details',
+    fields: [
+      'firstName',
+      'lastName',
+      'mothersName',
+      'rollNumber',
+      'phoneNumber',
+      'address',
+      'gender',
+      'dob',
+      'personalGmail',
+    ],
+  },
+  {
+    id: 2,
+    title: 'Academic Details',
+    fields: ['degree', 'year', 'branch', 'ssc', 'hsc', 'isDiploma'],
+  },
   { id: 3, title: 'Semester Grades', fields: ['sgpi'] },
   { id: 4, title: 'Additional Details', fields: ['linkedin', 'github', 'skills'] },
   { id: 5, title: 'Internships', fields: ['internships'] },
@@ -34,6 +55,8 @@ const steps = [
 export default function StudentRegistrationForm() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   const form = useForm<StudentSignup>({
     resolver: zodResolver(studentSignupSchema),
@@ -57,7 +80,12 @@ export default function StudentRegistrationForm() {
       ssc: 0,
       hsc: 0,
       isDiploma: false,
-      sgpi: Array.from({ length: 8 }, (_, i) => ({ sem: i + 1, sgpi: 0, kt: false, ktDead: false })),
+      sgpi: Array.from({ length: 8 }, (_, i) => ({
+        sem: i + 1,
+        sgpi: 0,
+        kt: false,
+        ktDead: false,
+      })),
       internships: [],
       resume: [],
     },
@@ -68,13 +96,21 @@ export default function StudentRegistrationForm() {
   const validateCurrentStep = async () => {
     const current = steps.find((s) => s.id === currentStep);
     if (!current) return false;
-    // Cast fields to the correct type for react-hook-form
-    return await form.trigger(current.fields as Parameters<typeof form.trigger>[0]);
+
+    try {
+      const result = await form.trigger(current.fields as (keyof StudentSignup)[]);
+      return result;
+    } catch (error) {
+      console.error('Validation error:', error);
+      return false;
+    }
   };
 
   const nextStep = async () => {
     const isValid = await validateCurrentStep();
-    if (isValid && currentStep < steps.length) setCurrentStep((prev) => prev + 1);
+    if (isValid && currentStep < steps.length) {
+      setCurrentStep((prev) => prev + 1);
+    }
   };
 
   const prevStep = () => {
@@ -84,13 +120,24 @@ export default function StudentRegistrationForm() {
   const onSubmit = async (data: StudentSignup) => {
     // Only submit if on the last step
     if (currentStep !== steps.length) return;
+
     setIsSubmitting(true);
     try {
-      await new Promise((res) => setTimeout(res, 2000));
-      console.log('Form submitted:', data);
-      alert('Form submitted successfully!');
+      const result = await signupAction(data);
+      if (result && result.success) {
+        router.push('/');
+        return;
+      }
+      if (result && result.error) {
+        const errorMessage = Array.isArray(result.error)
+          ? result.error.map((e) => e.message || e).join(', ')
+          : result.error;
+        alert('Submission failed: ' + errorMessage);
+      } else {
+        alert('Submission failed. Try again.');
+      }
     } catch (err) {
-      console.error(err);
+      console.error('Submission error:', err);
       alert('Submission failed. Try again.');
     } finally {
       setIsSubmitting(false);
@@ -128,7 +175,9 @@ export default function StudentRegistrationForm() {
             </CardTitle>
             <div className="space-y-2">
               <div className="flex justify-between text-sm text-muted-foreground">
-                <span>Step {currentStep} of {steps.length}</span>
+                <span>
+                  Step {currentStep} of {steps.length}
+                </span>
                 <span>{steps[currentStep - 1]?.title}</span>
               </div>
               <Progress value={progress} className="w-full" />
@@ -139,7 +188,7 @@ export default function StudentRegistrationForm() {
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="space-y-6"
-                onKeyDown={e => {
+                onKeyDown={(e) => {
                   if (
                     e.key === 'Enter' &&
                     e.target instanceof HTMLElement &&
@@ -151,16 +200,17 @@ export default function StudentRegistrationForm() {
               >
                 {renderStep()}
                 <div className="flex justify-between pt-6">
-                  <Button type="button" variant="outline" onClick={prevStep} disabled={currentStep === 1}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={prevStep}
+                    disabled={currentStep === 1}
+                  >
                     Previous
                   </Button>
                   {currentStep === steps.length ? (
-                    <Button
-                      type="button"
-                      disabled={isSubmitting}
-                      onClick={() => form.handleSubmit(onSubmit)()}
-                    >
-                      {isSubmitting ? 'Submitting...' : 'Submit'}
+                    <Button type="submit" disabled={isSubmitting || isPending}>
+                      {isSubmitting || isPending ? 'Submitting...' : 'Submit'}
                     </Button>
                   ) : (
                     <Button type="button" onClick={nextStep}>

@@ -23,10 +23,11 @@ export default function AdditionalDetailsStep({ form }: { form: any }) {
           name="linkedin"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>LinkedIn Profile *</FormLabel>
+              <FormLabel>LinkedIn Profile</FormLabel>
               <FormControl>
                 <Input type="url" placeholder="https://linkedin.com/in/yourprofile" {...field} />
               </FormControl>
+              <FormDescription>Optional</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -37,10 +38,11 @@ export default function AdditionalDetailsStep({ form }: { form: any }) {
           name="github"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>GitHub Profile *</FormLabel>
+              <FormLabel>GitHub Profile</FormLabel>
               <FormControl>
                 <Input type="url" placeholder="https://github.com/yourusername" {...field} />
               </FormControl>
+              <FormDescription>Optional</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -57,10 +59,20 @@ export default function AdditionalDetailsStep({ form }: { form: any }) {
               <Textarea
                 placeholder="JavaScript, React, Node.js, Python"
                 className="resize-none"
-                value={field.value ? (Array.isArray(field.value) ? field.value.join(", ") : field.value) : ""}
-                onChange={e => {
+                value={
+                  field.value
+                    ? Array.isArray(field.value)
+                      ? field.value.join(', ')
+                      : field.value
+                    : ''
+                }
+                onChange={(e) => {
                   const value = e.target.value;
-                  field.onChange(value.split(',').map(s => s.trim()).filter(Boolean));
+                  const skills = value
+                    .split(',')
+                    .map((s) => s.trim())
+                    .filter(Boolean);
+                  field.onChange(skills);
                 }}
               />
             </FormControl>

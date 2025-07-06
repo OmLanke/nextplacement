@@ -39,7 +39,7 @@ export default function AcademicDetailsStep({ form }: { form: any }) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Degree *</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select your degree" />
@@ -64,7 +64,7 @@ export default function AcademicDetailsStep({ form }: { form: any }) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Year *</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Year of graduation" />
@@ -89,7 +89,7 @@ export default function AcademicDetailsStep({ form }: { form: any }) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Branch *</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select your branch" />
@@ -119,7 +119,12 @@ export default function AcademicDetailsStep({ form }: { form: any }) {
             <FormItem>
               <FormLabel>SSC % *</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="10th percentage" {...field} />
+                <Input
+                  type="number"
+                  placeholder="10th percentage"
+                  {...field}
+                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -133,7 +138,12 @@ export default function AcademicDetailsStep({ form }: { form: any }) {
             <FormItem>
               <FormLabel>HSC % *</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="12th percentage" {...field} />
+                <Input
+                  type="number"
+                  placeholder="12th percentage"
+                  {...field}
+                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -146,7 +156,11 @@ export default function AcademicDetailsStep({ form }: { form: any }) {
           render={({ field }) => (
             <FormItem className="flex items-center space-x-2">
               <FormControl>
-                <input type="checkbox" checked={field.value} onChange={(e) => field.onChange(e.target.checked)} />
+                <input
+                  type="checkbox"
+                  checked={field.value}
+                  onChange={(e) => field.onChange(e.target.checked)}
+                />
               </FormControl>
               <FormLabel className="!m-0">Diploma Holder?</FormLabel>
             </FormItem>
