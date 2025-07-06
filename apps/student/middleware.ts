@@ -7,6 +7,11 @@ export default auth((req: NextRequest) => {
   }
 
   if (req.auth.user?.role === 'USER') {
+    if (!req.auth.user?.completedProfile && !req.nextUrl.pathname.startsWith('/signup')) {
+      const signupUrl = process.env.STUDENT_PROFILE_URL ?? 'http://localhost:3000/signup';
+      return NextResponse.redirect(new URL(signupUrl, req.url));
+    }
+
     return NextResponse.next();
   }
 

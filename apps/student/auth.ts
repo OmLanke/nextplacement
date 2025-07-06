@@ -10,6 +10,7 @@ declare module 'next-auth' {
       role?: 'ADMIN' | 'USER';
       adminId?: number;
       studentId?: number;
+      completedProfile?: boolean;
       [key: string]: any;
     } & DefaultSession["user"];
   }
@@ -18,6 +19,7 @@ declare module 'next-auth' {
     role?: 'ADMIN' | 'USER';
     adminId?: number;
     studentId?: number;
+    completedProfile?: boolean;
   }
 }
 
@@ -30,13 +32,14 @@ declare module 'next/server' {
 const authConfig: NextAuthConfig = {
   providers: [Google],
   callbacks: {
-    async jwt({ token, account, user, profile }) {
+    async jwt({ token, account, user }) {
       // Only check DB on first sign in
       if (account && user && user.email) {
         const admin = await db.select().from(admins).where(eq(admins.email, user.email)).limit(1);
         if (admin.length > 0 && admin[0]) {
           token.role = 'ADMIN';
           token.adminId = admin[0].id;
+          token.completedProfile = true;
         } else {
           token.role = 'USER';
           const student = await db
@@ -46,6 +49,7 @@ const authConfig: NextAuthConfig = {
             .limit(1);
           if (student.length > 0 && student[0]) {
             token.studentId = student[0].id;
+            token.completedProfile = student[0].rollNumber ? true : false;
           } else {
             const nameParts = user.name?.split(' ') ?? [];
             const firstName = nameParts[0] || '';
@@ -61,6 +65,7 @@ const authConfig: NextAuthConfig = {
               .returning({ id: students.id });
             if (newStudent[0]) {
               token.studentId = newStudent[0].id;
+              token.completedProfile = false;
             }
           }
         }
@@ -76,6 +81,9 @@ const authConfig: NextAuthConfig = {
       }
       if (token?.studentId) {
         session.user.studentId = token.studentId as number;
+      }
+      if (token?.completedProfile !== undefined) {
+        session.user.completedProfile = token.completedProfile as boolean;
       }
       return session;
     },

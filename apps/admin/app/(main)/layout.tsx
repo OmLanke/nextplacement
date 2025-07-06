@@ -17,6 +17,7 @@ import {
   Search,
   ChevronDown
 } from 'lucide-react';
+import { signOutAction } from './actions';
 
 const navLinks = [
   { 
@@ -180,6 +181,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                       <Button
                         variant="ghost"
                         size="sm"
+                        onClick={signOutAction}
                         className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
                       >
                         <LogOut className="w-4 h-4 mr-2" />

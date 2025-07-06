@@ -26,39 +26,7 @@ import {
   SelectValue,
 } from '@workspace/ui/components/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/components/card';
-
-// Form schema
-const formSchema = z.object({
-  // Personal Details
-  firstName: z.string().min(1, 'First name is required'),
-  lastName: z.string().min(1, 'Last name is required'),
-  fathersName: z.string().optional(),
-  mothersName: z.string().optional(),
-  email: z.string().email('Invalid email address'),
-  rollNumber: z.string().min(1, 'Roll number is required'),
-  phoneNumber: z.string().min(10, 'Phone number must be at least 10 digits'),
-  address: z.string().min(1, 'Address is required'),
-
-  // Academic Details
-  degree: z.string().min(1, 'Degree is required'),
-  year: z.string().min(1, 'Year is required'),
-  branch: z.string().min(1, 'Branch is required'),
-  ssc: z.string().min(1, 'SSC percentage is required'),
-  hsc: z.string().min(1, 'HSC percentage is required'),
-
-  // Semester Grades
-  sem1: z.string().min(1, 'Semester 1 grade is required'),
-  sem1KT: z.string().min(1, 'Semester 1 KT status is required'),
-  sem2: z.string().min(1, 'Semester 2 grade is required'),
-  sem2KT: z.string().min(1, 'Semester 2 KT status is required'),
-
-  // Additional Details
-  linkedin: z.string().url('Invalid LinkedIn URL'),
-  github: z.string().url('Invalid GitHub URL'),
-  skills: z.string().optional(),
-});
-
-type FormData = z.infer<typeof formSchema>;
+import { studentSignupSchema, StudentSignup } from './schema';
 
 const steps = [
   {
@@ -84,8 +52,8 @@ export default function StudentRegistrationForm() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<StudentSignup>({
+    resolver: zodResolver(studentSignupSchema),
     defaultValues: {
       firstName: '',
       lastName: '',
