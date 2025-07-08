@@ -45,7 +45,9 @@ export default function StatusSelect({
 
   return (
     <Select value={status} onValueChange={handleChange} disabled={isPending}>
-      <SelectTrigger className="min-w-[160px]" />
+      <SelectTrigger className="min-w-[160px]">
+        <SelectValue placeholder="Select status" />
+      </SelectTrigger>
       <SelectContent>
         {STATUS_OPTIONS.map((option) => (
           <SelectItem key={option} value={option}>
