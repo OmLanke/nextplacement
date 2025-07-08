@@ -257,7 +257,7 @@ export default function ProfilePage() {
       if (result.success) {
         setStudent((prev: Record<string, any> | null) => ({ ...(prev || {}), resumes: editingResumes }));
         setEditingSection(null);
-      } else {
+      } else if ('error' in result) {
         setError(result.error || 'Failed to update resumes');
       }
     } catch (err) {
