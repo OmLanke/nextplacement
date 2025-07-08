@@ -403,11 +403,11 @@ export default function ProfilePage() {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">SSC Score</span>
-                    <span className="font-medium">{student.ssc}/10</span>
+                    <span className="font-medium">{student.ssc}/100</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">HSC Score</span>
-                    <span className="font-medium">{student.hsc}/10</span>
+                    <span className="font-medium">{student.hsc}/100</span>
                   </div>
                 </div>
 

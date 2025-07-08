@@ -253,14 +253,14 @@ export default async function ApplicationsPage() {
                       </span>
                     </div>
                     <div className="flex gap-2">
-                      <Button size="sm" variant="outline">
+                      {/* <Button size="sm" variant="outline">
                         <Eye className="w-4 h-4 mr-2" />
                         View Details
                       </Button>
                       <Button size="sm" variant="outline">
                         <Download className="w-4 h-4 mr-2" />
                         Download Resume
-                      </Button>
+                      </Button> */}
                     </div>
                   </div>
                 </CardContent>
