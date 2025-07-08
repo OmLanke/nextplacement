@@ -18,6 +18,7 @@ import {
   Clock
 } from 'lucide-react';
 import Link from 'next/link';
+import StatusSelect from './StatusSelect';
 
 interface JobPageProps {
   params: { jobId: string };
@@ -33,7 +34,11 @@ export default async function JobDetailPage({ params }: JobPageProps) {
   if (jobRes.length === 0 || !jobRes[0]) notFound();
   const job = jobRes[0];
 
-  const companyRes = await db.select().from(companies).where(eq(companies.id, job.companyId)).limit(1);
+  const companyRes = await db
+    .select()
+    .from(companies)
+    .where(eq(companies.id, job.companyId))
+    .limit(1);
   const company = companyRes[0];
 
   const applicants = await db
@@ -43,6 +48,7 @@ export default async function JobDetailPage({ params }: JobPageProps) {
       firstName: students.firstName,
       lastName: students.lastName,
       email: students.email,
+      studentId: students.id,
     })
     .from(applications)
     .leftJoin(students, eq(applications.studentId, students.id))
@@ -80,9 +86,9 @@ export default async function JobDetailPage({ params }: JobPageProps) {
                   <div className="flex items-center gap-4">
                     <div className="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center overflow-hidden">
                       {company?.imageURL ? (
-                        <img 
-                          src={company.imageURL} 
-                          alt={company.name} 
+                        <img
+                          src={company.imageURL}
+                          alt={company.name}
                           className="w-full h-full object-cover"
                         />
                       ) : (
@@ -98,11 +104,11 @@ export default async function JobDetailPage({ params }: JobPageProps) {
                       </CardDescription>
                     </div>
                   </div>
-                  <Badge 
-                    variant={job.active ? "default" : "secondary"}
+                  <Badge
+                    variant={job.active ? 'default' : 'secondary'}
                     className={`${
-                      job.active 
-                        ? 'bg-green-100 text-green-700 hover:bg-green-200' 
+                      job.active
+                        ? 'bg-green-100 text-green-700 hover:bg-green-200'
                         : 'bg-red-100 text-red-700 hover:bg-red-200'
                     }`}
                   >
@@ -131,7 +137,9 @@ export default async function JobDetailPage({ params }: JobPageProps) {
                     <Calendar className="w-5 h-5 text-gray-500" />
                     <div>
                       <p className="text-sm font-medium text-gray-700">Application Deadline</p>
-                      <p className="text-sm text-gray-600">{job.applicationDeadline.toLocaleDateString()}</p>
+                      <p className="text-sm text-gray-600">
+                        {job.applicationDeadline.toLocaleDateString()}
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
@@ -145,10 +153,10 @@ export default async function JobDetailPage({ params }: JobPageProps) {
 
                 {/* Job Link */}
                 <div className="pt-4 border-t border-gray-100">
-                  <a 
-                    href={job.link} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
+                  <a
+                    href={job.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 text-blue-700 hover:text-red-600 transition-colors font-medium"
                   >
                     <ExternalLink className="w-4 h-4" />
@@ -199,22 +207,30 @@ export default async function JobDetailPage({ params }: JobPageProps) {
                   </div>
                 </div>
                 <div className="mt-4 flex gap-4">
-                  <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
-                    job.allowDeadKT ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                  }`}>
-                    <div className={`w-2 h-2 rounded-full ${
-                      job.allowDeadKT ? 'bg-green-500' : 'bg-red-500'
-                    }`} />
+                  <div
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
+                      job.allowDeadKT ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                    }`}
+                  >
+                    <div
+                      className={`w-2 h-2 rounded-full ${
+                        job.allowDeadKT ? 'bg-green-500' : 'bg-red-500'
+                      }`}
+                    />
                     <span className="text-sm font-medium">
                       Dead KT: {job.allowDeadKT ? 'Allowed' : 'Not Allowed'}
                     </span>
                   </div>
-                  <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
-                    job.allowLiveKT ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                  }`}>
-                    <div className={`w-2 h-2 rounded-full ${
-                      job.allowLiveKT ? 'bg-green-500' : 'bg-red-500'
-                    }`} />
+                  <div
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
+                      job.allowLiveKT ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                    }`}
+                  >
+                    <div
+                      className={`w-2 h-2 rounded-full ${
+                        job.allowLiveKT ? 'bg-green-500' : 'bg-red-500'
+                      }`}
+                    />
                     <span className="text-sm font-medium">
                       Live KT: {job.allowLiveKT ? 'Allowed' : 'Not Allowed'}
                     </span>
@@ -238,9 +254,9 @@ export default async function JobDetailPage({ params }: JobPageProps) {
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden">
                     {company?.imageURL ? (
-                      <img 
-                        src={company.imageURL} 
-                        alt={company.name} 
+                      <img
+                        src={company.imageURL}
+                        alt={company.name}
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -277,7 +293,9 @@ export default async function JobDetailPage({ params }: JobPageProps) {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Application Deadline</span>
-                  <span className="font-medium">{job.applicationDeadline.toLocaleDateString()}</span>
+                  <span className="font-medium">
+                    {job.applicationDeadline.toLocaleDateString()}
+                  </span>
                 </div>
               </CardContent>
             </Card>
@@ -301,7 +319,9 @@ export default async function JobDetailPage({ params }: JobPageProps) {
                 <div className="text-center py-12">
                   <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-gray-900 mb-2">No applications yet</h3>
-                  <p className="text-gray-600">Students will appear here once they apply for this job.</p>
+                  <p className="text-gray-600">
+                    Students will appear here once they apply for this job.
+                  </p>
                 </div>
               ) : (
                 <div className="rounded-lg border border-gray-200 overflow-hidden">
@@ -317,22 +337,16 @@ export default async function JobDetailPage({ params }: JobPageProps) {
                       {applicants.map((applicant) => (
                         <TableRow key={applicant.applicationId} className="hover:bg-gray-50">
                           <TableCell className="font-medium">
-                            {`${applicant.firstName ?? ''} ${applicant.lastName ?? ''}`.trim() || 'Unknown'}
+                            {`${applicant.firstName ?? ''} ${applicant.lastName ?? ''}`.trim() ||
+                              'Unknown'}
                           </TableCell>
                           <TableCell className="text-gray-600">{applicant.email}</TableCell>
                           <TableCell>
-                            <Badge 
-                              variant="outline" 
-                              className={`${
-                                applicant.status === 'approved' 
-                                  ? 'border-green-200 text-green-700 bg-green-50' 
-                                  : applicant.status === 'rejected'
-                                  ? 'border-red-200 text-red-700 bg-red-50'
-                                  : 'border-yellow-200 text-yellow-700 bg-yellow-50'
-                              }`}
-                            >
-                              {applicant.status.charAt(0).toUpperCase() + applicant.status.slice(1)}
-                            </Badge>
+                            <StatusSelect
+                              applicationId={applicant.applicationId}
+                              initialStatus={applicant.status}
+                              studentId={applicant.studentId ?? 0}
+                            />
                           </TableCell>
                         </TableRow>
                       ))}
