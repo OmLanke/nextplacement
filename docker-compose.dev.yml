@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  # Student application (Development)
+  student-dev:
+    build:
+      context: .
+      dockerfile: apps/student/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/apps/student/node_modules
+      - /app/packages/ui/node_modules
+      - /app/packages/db/node_modules
+    command: ["pnpm", "dev", "--filter=student"]
+    restart: unless-stopped
+
+  # Admin application (Development)
+  admin-dev:
+    build:
+      context: .
+      dockerfile: apps/admin/Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - HOSTNAME=0.0.0.0
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/apps/admin/node_modules
+      - /app/packages/ui/node_modules
+      - /app/packages/db/node_modules
+    command: ["pnpm", "dev", "--filter=admin"]
+    restart: unless-stopped
+
+  # Database (Development)
+  postgres-dev:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: nextplacement_dev
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+volumes:
+  postgres_dev_data: 

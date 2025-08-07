@@ -1,38 +1,63 @@
+# Use the official Node.js runtime as the base image
 FROM node:22-alpine AS base
- 
-FROM base AS builder
-RUN apk update
-RUN apk add --no-cache libc6-compat
+
+# Install dependencies only when needed
+FROM base AS deps
+# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
+RUN apk update && apk add --no-cache libc6-compat
 WORKDIR /app
 
-RUN corepack enable pnpm && pnpm add -g turbo@^2
-COPY . .
- 
-RUN turbo prune student --docker
- 
-FROM base AS installer
-RUN apk update
-RUN apk add --no-cache libc6-compat
+# Install pnpm globally
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# Copy package files
+COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml* ./
+COPY apps/student/package.json ./apps/student/
+COPY packages/db/package.json ./packages/db/
+COPY packages/ui/package.json ./packages/ui/
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile
+
+# Rebuild the source code only when needed
+FROM base AS builder
 WORKDIR /app
- 
-COPY --from=builder /app/out/json/ .
-RUN yarn install --frozen-lockfile
- 
-COPY --from=builder /app/out/full/ .
-RUN pnpm turbo run build
- 
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Set environment variables for build
+ENV NEXT_TELEMETRY_DISABLED 1
+ENV NODE_ENV production
+
+# Build the application
+RUN pnpm turbo run build --filter=student...
+
+# Production image, copy all the files and run next
 FROM base AS runner
 WORKDIR /app
- 
-# Don't run production as root
+
+ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
+
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
+
+# Copy the standalone output
+COPY --from=builder /app/apps/student/.next/standalone ./
+COPY --from=builder /app/apps/student/.next/static ./apps/student/.next/static
+COPY --from=builder /app/apps/student/public ./apps/student/public
+
+# Set the correct permission for prerender cache
+RUN mkdir .next
+RUN chown nextjs:nodejs .next
+
 USER nextjs
- 
-# Automatically leverage output traces to reduce image size
-# https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=installer --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
-COPY --from=installer --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
-COPY --from=installer --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
- 
-CMD node apps/web/server.js
+
+EXPOSE 3000
+
+ENV PORT 3000
+ENV HOSTNAME "0.0.0.0"
+
+# server.js is created by next build from the standalone output
+# https://nextjs.org/docs/pages/api-reference/next-config-js/output
+CMD ["node", "apps/student/server.js"]
