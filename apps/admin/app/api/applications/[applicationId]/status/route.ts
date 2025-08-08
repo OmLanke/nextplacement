@@ -2,8 +2,9 @@ import { db, applications } from '@workspace/db';
 import { eq } from '@workspace/db/drizzle';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function PATCH(req: NextRequest, { params }: { params: { applicationId: string } }) {
-  const applicationId = Number(params.applicationId);
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ applicationId: string }> }) {
+  const { applicationId: applicationIdParam } = await params;
+  const applicationId = Number(applicationIdParam);
   if (isNaN(applicationId)) {
     return NextResponse.json({ error: 'Invalid applicationId' }, { status: 400 });
   }

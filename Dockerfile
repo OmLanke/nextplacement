@@ -19,6 +19,7 @@ COPY packages/ui/package.json ./packages/ui/
 
 # Install dependencies
 RUN pnpm install --frozen-lockfile
+RUN pnpm add -D @eslint/js
 
 # Rebuild the source code only when needed
 FROM base AS builder

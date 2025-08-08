@@ -20,14 +20,11 @@ import {
 import Link from 'next/link';
 import StatusSelect from './StatusSelect';
 
-interface JobPageProps {
-  params: { jobId: string };
-}
-
 export const dynamic = 'force-dynamic';
 
-export default async function JobDetailPage({ params }: JobPageProps) {
-  const jobId = Number(params.jobId);
+export default async function JobDetailPage({ params }: { params: Promise<{ jobId: string }> }) {
+  const { jobId: jobIdParam } = await params;
+  const jobId = Number(jobIdParam);
   if (isNaN(jobId)) notFound();
 
   const jobRes = await db.select().from(jobs).where(eq(jobs.id, jobId)).limit(1);
