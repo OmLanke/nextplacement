@@ -25,24 +25,7 @@ export type Job = InferSelectModel<typeof jobs> & {
   company: typeof companies.$inferSelect;
 };
 
-export type Resume = typeof resumes.$inferSelect;t { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card"
-import { Button } from "@workspace/ui/components/button"
-import { Badge } from "@workspace/ui/components/badge"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@workspace/ui/components/dialog"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@workspace/ui/components/select"
-import {
-  Building2,
-  MapPin,
-  DollarSign,
-  Calendar,
-  Star,
-  CheckCircle,
-  FileText,
-  Upload,
-  AlertCircle
-} from "lucide-react"
-import { applyForJob } from "../app/(main)/actions"
+export type Resume = typeof resumes.$inferSelect;
 
 interface JobApplicationModalProps {
   job: Job & { minCGPA: number };
