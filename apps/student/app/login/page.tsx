@@ -19,8 +19,8 @@ export default async function Page() {
         <div className="flex flex-col items-center gap-2">
           {/* Animated logo */}
           <img src="/favicon.ico" alt="Logo" className="w-14 h-14 mb-2 drop-shadow-lg animate-bounce-slow" />
-          <h1 className="text-2xl font-bold text-gray-800 tracking-tight">Placement Portal Admin</h1>
-          <p className="text-gray-500 text-sm text-center">Sign in to manage placements and students</p>
+          <h1 className="text-2xl font-bold text-gray-800 tracking-tight">Placement Portal Login</h1>
+          <p className="text-gray-500 text-sm text-center">Sign in to manage your placements</p>
           <p className="text-xs text-red-500 font-semibold italic mt-1 animate-fade-in">Empower your journey. Shape the future.</p>
         </div>
         <form action={logIn} className="w-full">
