@@ -66,10 +66,30 @@ function NewJobForm({ companies }: { companies: { id: number; name: string }[] }
     },
   })
 
-  async function handleSubmit(formData: FormData) {
+  async function handleSubmit(data: JobFormData) {
     setError(null)
     setSuccess(false)
     startTransition(async () => {
+      // Convert React Hook Form data to FormData for the server action
+      const formData = new FormData()
+      formData.append('companyId', String(data.companyId))
+      formData.append('title', data.title)
+      formData.append('link', data.link)
+      formData.append('description', data.description)
+      formData.append('location', data.location)
+      formData.append('imageURL', data.imageURL || '')
+      formData.append('salary', data.salary)
+      // Convert Date to ISO string for the server
+      const deadline = data.applicationDeadline instanceof Date
+        ? data.applicationDeadline.toISOString().slice(0, 10)
+        : new Date(data.applicationDeadline).toISOString().slice(0, 10)
+      formData.append('applicationDeadline', deadline)
+      formData.append('minCGPA', String(data.minCGPA))
+      formData.append('minSSC', String(data.minSSC))
+      formData.append('minHSC', String(data.minHSC))
+      formData.append('allowDeadKT', String(data.allowDeadKT))
+      formData.append('allowLiveKT', String(data.allowLiveKT))
+
       const result = await createJob(formData)
       if (result?.success) {
         setSuccess(true)
@@ -128,7 +148,7 @@ function NewJobForm({ companies }: { companies: { id: number; name: string }[] }
         <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
           <CardContent className="p-8">
             <Form {...form}>
-              <form action={handleSubmit} className="space-y-8">
+              <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
                 {/* Success/Error Messages */}
                 {success && (
                   <Alert className="border-green-200 bg-green-50">
@@ -319,25 +339,24 @@ function NewJobForm({ companies }: { companies: { id: number; name: string }[] }
                       control={form.control}
                       name="applicationDeadline"
                       render={({ field }) => {
-                        const getDisplayDate = (value: string) => {
+                        const getDisplayDate = (value: Date | string) => {
                           if (!value) return ""
                           try {
-                            return format(new Date(value), "PPP")
+                            const date = value instanceof Date ? value : new Date(value)
+                            return format(date, "PPP")
                           } catch {
-                            return value
+                            return ""
                           }
                         }
 
-                        const selectedDate = field.value ? new Date(field.value) : undefined
+                        const selectedDate = field.value ? (field.value instanceof Date ? field.value : new Date(field.value)) : undefined
 
                         const handleSelect = (date: Date | undefined) => {
-                          setTimeout(() => {
-                            if (date) {
-                              field.onChange(date.toISOString().slice(0, 10))
-                            } else {
-                              field.onChange("")
-                            }
-                          }, 0)
+                          if (date) {
+                            field.onChange(date)
+                          } else {
+                            field.onChange(new Date())
+                          }
                         }
 
                         return (
@@ -354,9 +373,7 @@ function NewJobForm({ companies }: { companies: { id: number; name: string }[] }
                                     )}
                                     type="button"
                                   >
-                                    {getDisplayDate(typeof field.value === "string" ? field.value : "") || (
-                                      <span>Pick a date</span>
-                                    )}
+                                    {field.value ? getDisplayDate(field.value) : <span>Pick a date</span>}
                                     <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                   </Button>
                                 </FormControl>
@@ -367,7 +384,6 @@ function NewJobForm({ companies }: { companies: { id: number; name: string }[] }
                                   selected={selectedDate}
                                   onSelect={handleSelect}
                                   captionLayout="dropdown"
-                                  key={typeof field.value === "string" ? field.value : "empty"}
                                 />
                               </PopoverContent>
                             </Popover>
@@ -445,7 +461,15 @@ function NewJobForm({ companies }: { companies: { id: number; name: string }[] }
                         <FormItem>
                           <FormLabel className="text-sm font-medium text-gray-700">Minimum CGPA</FormLabel>
                           <FormControl>
-                            <Input type="number" step="0.01" placeholder="0.00" {...field} className="h-11" />
+                            <Input
+                              type="number"
+                              step="0.01"
+                              placeholder="0.00"
+                              {...field}
+                              value={field.value?.toString() || ''}
+                              onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : 0)}
+                              className="h-11"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -459,7 +483,15 @@ function NewJobForm({ companies }: { companies: { id: number; name: string }[] }
                         <FormItem>
                           <FormLabel className="text-sm font-medium text-gray-700">Minimum SSC %</FormLabel>
                           <FormControl>
-                            <Input type="number" step="0.01" placeholder="0.00" {...field} className="h-11" />
+                            <Input
+                              type="number"
+                              step="0.01"
+                              placeholder="0.00"
+                              {...field}
+                              value={field.value?.toString() || ''}
+                              onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : 0)}
+                              className="h-11"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -473,7 +505,15 @@ function NewJobForm({ companies }: { companies: { id: number; name: string }[] }
                         <FormItem>
                           <FormLabel className="text-sm font-medium text-gray-700">Minimum HSC %</FormLabel>
                           <FormControl>
-                            <Input type="number" step="0.01" placeholder="0.00" {...field} className="h-11" />
+                            <Input
+                              type="number"
+                              step="0.01"
+                              placeholder="0.00"
+                              {...field}
+                              value={field.value?.toString() || ''}
+                              onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : 0)}
+                              className="h-11"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

@@ -22,7 +22,7 @@ export default function AcademicDetailsStep({ form }: { form: any }) {
   ];
 
   const branchOptions = [
-    { value: 'cse', label: 'Computer Science' },
+    { value: 'cse', label: 'Computer Engineering' },
     { value: 'it', label: 'Information Technology' },
     { value: 'ece', label: 'Electronics & Communication' },
     { value: 'mechanical', label: 'Mechanical' },

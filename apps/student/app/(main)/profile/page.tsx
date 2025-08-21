@@ -684,7 +684,7 @@ export default function ProfilePage() {
                           <SelectValue placeholder="Select branch" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Computer Science">Computer Science</SelectItem>
+                          <SelectItem value="Computer Engineering">Computer Engineering</SelectItem>
                           <SelectItem value="Information Technology">Information Technology</SelectItem>
                           <SelectItem value="Electronics & Communication">Electronics & Communication</SelectItem>
                           <SelectItem value="Mechanical Engineering">Mechanical Engineering</SelectItem>
