@@ -6,11 +6,36 @@ import { Button } from "@workspace/ui/components/button"
 import { Badge } from "@workspace/ui/components/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@workspace/ui/components/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@workspace/ui/components/select"
-import { 
-  Building2, 
-  MapPin, 
-  DollarSign, 
-  Calendar, 
+import {
+  Building2,
+  MapPin,
+  DollarSign,
+  Calendar,
+  Star,
+  CheckCircle,
+  FileText,
+  Upload,
+  AlertCircle
+} from "lucide-react"
+import { applyForJob } from "../app/(main)/actions"
+import { type InferSelectModel } from '@workspace/db/drizzle';
+import { jobs, companies, resumes } from '@workspace/db/schema';
+
+export type Job = InferSelectModel<typeof jobs> & {
+  company: typeof companies.$inferSelect;
+};
+
+export type Resume = typeof resumes.$inferSelect;t { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card"
+import { Button } from "@workspace/ui/components/button"
+import { Badge } from "@workspace/ui/components/badge"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@workspace/ui/components/dialog"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@workspace/ui/components/select"
+import {
+  Building2,
+  MapPin,
+  DollarSign,
+  Calendar,
   Star,
   CheckCircle,
   FileText,
@@ -20,28 +45,13 @@ import {
 import { applyForJob } from "../app/(main)/actions"
 
 interface JobApplicationModalProps {
-  job: {
-    id: number;
-    title: string;
-    company: {
-      name: string;
-    };
-    location: string;
-    salary: string;
-    description: string;
-    applicationDeadline: Date;
-    minCGPA: number;
-    link?: string;
-  };
+  job: Job & { minCGPA: number };
   studentId: number;
-  resumes: Array<{
-    id: number;
-    title: string;
-    link: string;
-  }>;
+  resumes: Resume[];
+  isApplied?: boolean;
 }
 
-export default function JobApplicationModal({ job, studentId, resumes }: JobApplicationModalProps) {
+export default function JobApplicationModal({ job, studentId, resumes, isApplied = false }: JobApplicationModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedResume, setSelectedResume] = useState<string>('');
   const [isApplying, setIsApplying] = useState(false);
@@ -58,7 +68,7 @@ export default function JobApplicationModal({ job, studentId, resumes }: JobAppl
 
     try {
       const result = await applyForJob(job.id, studentId, parseInt(selectedResume));
-      
+
       if (result.success) {
         setMessage({ type: 'success', text: 'Application submitted successfully!' });
         setTimeout(() => {
@@ -81,8 +91,8 @@ export default function JobApplicationModal({ job, studentId, resumes }: JobAppl
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button 
-          size="sm" 
+        <Button
+          size="sm"
           className="bg-blue-600 hover:bg-blue-700"
           disabled={isDeadlinePassed}
         >
@@ -111,7 +121,7 @@ export default function JobApplicationModal({ job, studentId, resumes }: JobAppl
                   Active
                 </Badge>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
                 <div className="flex items-center gap-1">
                   <MapPin className="w-4 h-4" />
@@ -138,7 +148,7 @@ export default function JobApplicationModal({ job, studentId, resumes }: JobAppl
           {/* Application Form */}
           <div className="space-y-4">
             <h4 className="font-semibold text-gray-900">Application Details</h4>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Select Resume *
@@ -168,8 +178,8 @@ export default function JobApplicationModal({ job, studentId, resumes }: JobAppl
             {/* Message Display */}
             {message && (
               <div className={`p-3 rounded-lg ${
-                message.type === 'success' 
-                  ? 'bg-green-100 text-green-700 border border-green-200' 
+                message.type === 'success'
+                  ? 'bg-green-100 text-green-700 border border-green-200'
                   : 'bg-red-100 text-red-700 border border-red-200'
               }`}>
                 <div className="flex items-center gap-2">
@@ -185,15 +195,15 @@ export default function JobApplicationModal({ job, studentId, resumes }: JobAppl
 
             {/* Action Buttons */}
             <div className="flex gap-3 pt-4">
-              <Button 
+              <Button
                 onClick={handleApply}
                 disabled={isApplying || resumes.length === 0}
                 className="flex-1 bg-blue-600 hover:bg-blue-700"
               >
                 {isApplying ? 'Submitting...' : 'Submit Application'}
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => setIsOpen(false)}
                 disabled={isApplying}
               >
@@ -216,4 +226,4 @@ export default function JobApplicationModal({ job, studentId, resumes }: JobAppl
       </DialogContent>
     </Dialog>
   );
-} 
+}

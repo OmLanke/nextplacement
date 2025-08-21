@@ -2,6 +2,7 @@ import JobsClient from './JobClient';
 import { auth } from '@/auth';
 import { db, resumes } from '@workspace/db';
 import { eq } from '@workspace/db/drizzle';
+import { getStudentApplicationJobIds } from '../actions';
 
 export default async function JobsPage() {
   const session = await auth();
@@ -13,5 +14,9 @@ export default async function JobsPage() {
   });
   let reusmes = await db.select().from(resumes).where(eq(resumes.studentId, studentId));
 
-  return <JobsClient jobs={jobs} resumes={reusmes} studentId={studentId} />;
+  // Get student's applied job IDs
+  const { success, appliedJobIds } = await getStudentApplicationJobIds(studentId);
+  const studentAppliedJobIds = success ? appliedJobIds : [];
+
+  return <JobsClient jobs={jobs} resumes={reusmes} studentId={studentId} appliedJobIds={studentAppliedJobIds} />;
 }

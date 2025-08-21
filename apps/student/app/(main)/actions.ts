@@ -140,3 +140,20 @@ export async function getResumes(studentId: number) {
     return { success: false, error: 'Failed to fetch resumes' };
   }
 }
+
+export async function getStudentApplicationJobIds(studentId: number) {
+  try {
+    const studentApplications = await db.query.applications.findMany({
+      where: eq(applications.studentId, studentId),
+      columns: {
+        jobId: true,
+      },
+    });
+
+    const appliedJobIds = studentApplications.map(app => app.jobId);
+    return { success: true, appliedJobIds };
+  } catch (error) {
+    console.error('Error fetching student applied job IDs:', error);
+    return { success: false, error: 'Failed to fetch applied job IDs' };
+  }
+}

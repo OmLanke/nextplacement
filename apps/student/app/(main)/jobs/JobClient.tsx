@@ -46,10 +46,12 @@ export default function JobsPage({
   jobs,
   resumes,
   studentId,
+  appliedJobIds = [],
 }: {
   jobs: Job[];
   resumes: Resume[];
   studentId: number;
+  appliedJobIds?: number[];
 }) {
   const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
