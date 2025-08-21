@@ -82,7 +82,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
               </div>
               <div className="flex flex-col">
                 <span className="font-extrabold text-2xl tracking-tight text-gray-800 group-hover:text-gray-900 transition-colors duration-200">
-                  NextPlacement
+                  Placement Portal
                 </span>
                 <span className="text-xs text-gray-500 font-medium -mt-1">Admin Portal</span>
               </div>

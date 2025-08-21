@@ -219,7 +219,7 @@ export default function StudentRegistrationForm() {
 
       {/* Welcoming heading - now always at the top */}
       <div className="w-full text-center mb-8 z-10">
-        <h1 className="text-4xl font-extrabold text-primary drop-shadow-sm tracking-tight mb-2">Welcome to NextPlacement</h1>
+        <h1 className="text-4xl font-extrabold text-primary drop-shadow-sm tracking-tight mb-2">Welcome to Placement Portal</h1>
         <p className="text-lg text-gray-500 max-w-xl mx-auto">Register below to get started with your placement journey. Fill in your details step by step and let your career take off!</p>
       </div>
       <div className="max-w-4xl w-full mx-auto px-4 z-10">

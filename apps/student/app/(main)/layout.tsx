@@ -93,7 +93,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
               </div>
               <div className="flex flex-col">
                 <span className="font-extrabold text-2xl tracking-tight bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent group-hover:from-blue-700 group-hover:to-indigo-700 transition-all duration-200">
-                  NextPlacement
+                  Placement Portal 
                 </span>
                 <span className="text-xs text-blue-600 font-medium -mt-1">Student Portal</span>
               </div>
