@@ -191,19 +191,25 @@ export default async function DashboardPage() {
                                 </div>
                               </div>
 
-                              {job.link && (
-                                <div className="pt-2">
+                              <div className="pt-2 flex items-center gap-3">
+                                <Link
+                                  href={`/jobs/${job.id}`}
+                                  className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 font-medium group-hover:underline"
+                                >
+                                  View Job
+                                </Link>
+                                {job.link && (
                                   <a
                                     href={job.link}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 font-medium group-hover:underline"
+                                    className="inline-flex items-center gap-1 text-xs text-gray-600 hover:text-gray-800"
                                   >
-                                    View Job
+                                    Company Link
                                     <ExternalLink className="w-3 h-3" />
                                   </a>
-                                </div>
-                              )}
+                                )}
+                              </div>
                             </div>
                           </CardContent>
                         </Card>
