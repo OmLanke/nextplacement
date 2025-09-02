@@ -1,5 +1,5 @@
 // Due to the length and complexity of the complete updated form, the full implementation is provided modularly.
-// This file only includes the top-level form layout and updated schema logic. Other components (InternshipModal, ResumeModal, etc.) 
+// This file only includes the top-level form layout and updated schema logic. Other components (InternshipModal, ResumeModal, etc.)
 // should be created as separate files or extracted for cleanliness.
 
 'use client';
@@ -34,6 +34,11 @@ const steps = [
       'firstName',
       'lastName',
       'mothersName',
+      'mothersEmail',
+      'mothersPhone',
+      'fathersName',
+      'fathersEmail',
+      'fathersPhone',
       'rollNumber',
       'phoneNumber',
       'address',
@@ -67,6 +72,11 @@ export default function StudentRegistrationForm() {
       middleName: '',
       lastName: '',
       mothersName: '',
+      mothersEmail: '',
+      mothersPhone: '',
+      fathersName: '',
+      fathersEmail: '',
+      fathersPhone: '',
       rollNumber: '',
       phoneNumber: '',
       address: '',
@@ -175,6 +185,11 @@ export default function StudentRegistrationForm() {
     middleName: 'Middle Name',
     lastName: 'Last Name',
     mothersName: "Mother's Name",
+    mothersEmail: "Mother's Email",
+    mothersPhone: "Mother's Phone Number",
+    fathersName: "Father's Name",
+    fathersEmail: "Father's Email",
+    fathersPhone: "Father's Phone Number",
     rollNumber: 'Roll Number',
     phoneNumber: 'Phone Number',
     address: 'Address',
@@ -219,8 +234,13 @@ export default function StudentRegistrationForm() {
 
       {/* Welcoming heading - now always at the top */}
       <div className="w-full text-center mb-8 z-10">
-        <h1 className="text-4xl font-extrabold text-primary drop-shadow-sm tracking-tight mb-2">Welcome to Placement Portal</h1>
-        <p className="text-lg text-gray-500 max-w-xl mx-auto">Register below to get started with your placement journey. Fill in your details step by step and let your career take off!</p>
+        <h1 className="text-4xl font-extrabold text-primary drop-shadow-sm tracking-tight mb-2">
+          Welcome to Placement Portal
+        </h1>
+        <p className="text-lg text-gray-500 max-w-xl mx-auto">
+          Register below to get started with your placement journey. Fill in your details step by
+          step and let your career take off!
+        </p>
       </div>
       <div className="max-w-4xl w-full mx-auto px-4 z-10">
         <Card className="shadow-2xl rounded-3xl border border-gray-200 bg-white/90 backdrop-blur-md">
@@ -233,7 +253,9 @@ export default function StudentRegistrationForm() {
                 <span>
                   Step {currentStep} of {steps.length}
                 </span>
-                <span className="font-semibold text-primary/80">{steps[currentStep - 1]?.title}</span>
+                <span className="font-semibold text-primary/80">
+                  {steps[currentStep - 1]?.title}
+                </span>
               </div>
               <Progress value={progress} className="w-full h-2 rounded-full bg-muted" />
             </div>
@@ -242,24 +264,25 @@ export default function StudentRegistrationForm() {
             <Form {...form}>
               <form
                 ref={formRef}
-                onSubmit={currentStep === steps.length
-                  ? form.handleSubmit(onSubmit, () => {
-                      // Get all error fields
-                      const errorFields = extractErrorFields(form.formState.errors);
-                      // Map to user-friendly names
-                      const prettyFields = errorFields.map((key) => {
-                        // Try to map top-level, or fallback to key
-                        const topKey = String(key.split('.')[0]);
-                        return fieldLabels[topKey] || key;
-                      });
-                      alert(
-                        'Please fill all required fields before submitting.\n' +
-                        (prettyFields.length > 0
-                          ? 'Missing/invalid: ' + prettyFields.join(', ')
-                          : '')
-                      );
-                    })
-                  : (e) => e.preventDefault()
+                onSubmit={
+                  currentStep === steps.length
+                    ? form.handleSubmit(onSubmit, () => {
+                        // Get all error fields
+                        const errorFields = extractErrorFields(form.formState.errors);
+                        // Map to user-friendly names
+                        const prettyFields = errorFields.map((key) => {
+                          // Try to map top-level, or fallback to key
+                          const topKey = String(key.split('.')[0]);
+                          return fieldLabels[topKey] || key;
+                        });
+                        alert(
+                          'Please fill all required fields before submitting.\n' +
+                            (prettyFields.length > 0
+                              ? 'Missing/invalid: ' + prettyFields.join(', ')
+                              : ''),
+                        );
+                      })
+                    : (e) => e.preventDefault()
                 }
                 className="space-y-8"
                 onKeyDown={(e) => {
@@ -284,11 +307,19 @@ export default function StudentRegistrationForm() {
                     Previous
                   </Button>
                   {currentStep === steps.length ? (
-                    <Button type="submit" disabled={isSubmitting || isPending} className="rounded-full px-8 py-2 shadow-md bg-gradient-to-r from-primary to-accent text-white">
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting || isPending}
+                      className="rounded-full px-8 py-2 shadow-md bg-gradient-to-r from-primary to-accent text-white"
+                    >
                       {isSubmitting || isPending ? 'Submitting...' : 'Submit'}
                     </Button>
                   ) : (
-                    <Button type="button" onClick={nextStep} className="rounded-full px-8 py-2 shadow-md bg-gradient-to-r from-primary to-accent text-white">
+                    <Button
+                      type="button"
+                      onClick={nextStep}
+                      className="rounded-full px-8 py-2 shadow-md bg-gradient-to-r from-primary to-accent text-white"
+                    >
                       Next
                     </Button>
                   )}
@@ -300,46 +331,75 @@ export default function StudentRegistrationForm() {
       </div>
       {/* Animated gradient and blob styles */}
       <style jsx global>{`
-  /* ====== BACKGROUND GRADIENT ==================================== */
-  .live-bg-gradient {
-    /* lightest → darkest slate-blue progression */
-    background: linear-gradient(
-      120deg,
-      #f1f5f9,     /* slate-50  */
-      #cbd5e1 30%, /* slate-200 */
-      #94a3b8 60%, /* slate-400 */
-      #64748b 80%, /* slate-500 */
-      #334155      /* slate-700 */
-    );
-    background-size: 300% 300%;
-    animation: gradientMove 16s ease-in-out infinite;
-  }
+        /* ====== BACKGROUND GRADIENT ==================================== */
+        .live-bg-gradient {
+          /* lightest → darkest slate-blue progression */
+          background: linear-gradient(
+            120deg,
+            #f1f5f9,
+            /* slate-50  */ #cbd5e1 30%,
+            /* slate-200 */ #94a3b8 60%,
+            /* slate-400 */ #64748b 80%,
+            /* slate-500 */ #334155 /* slate-700 */
+          );
+          background-size: 300% 300%;
+          animation: gradientMove 16s ease-in-out infinite;
+        }
 
-  @keyframes gradientMove {
-    0%   { background-position: 0% 50%; }
-    25%  { background-position: 100% 50%; }
-    50%  { background-position: 100% 100%; }
-    75%  { background-position: 0% 100%; }
-    100% { background-position: 0% 50%; }
-  }
+        @keyframes gradientMove {
+          0% {
+            background-position: 0% 50%;
+          }
+          25% {
+            background-position: 100% 50%;
+          }
+          50% {
+            background-position: 100% 100%;
+          }
+          75% {
+            background-position: 0% 100%;
+          }
+          100% {
+            background-position: 0% 50%;
+          }
+        }
 
-  /* ====== BLOB COLORS ============================================ */
-  .animate-blob1 { background: #e2e8f0; } /* slate-100 */
-  .animate-blob2 { background: #cbd5e1; } /* slate-200 */
-  .animate-blob3 { background: #94a3b8; } /* slate-400 */
-  .animate-blob4 { background: #64748b; } /* slate-500 */
-  .animate-blob5 { background: #475569; } /* slate-600 */
+        /* ====== BLOB COLORS ============================================ */
+        .animate-blob1 {
+          background: #e2e8f0;
+        } /* slate-100 */
+        .animate-blob2 {
+          background: #cbd5e1;
+        } /* slate-200 */
+        .animate-blob3 {
+          background: #94a3b8;
+        } /* slate-400 */
+        .animate-blob4 {
+          background: #64748b;
+        } /* slate-500 */
+        .animate-blob5 {
+          background: #475569;
+        } /* slate-600 */
 
-  /* ====== BLOB MOTION (unchanged) ================================ */
-  .animate-blob1 { animation: blobMove1 18s ease-in-out infinite; }
-  .animate-blob2 { animation: blobMove2 22s ease-in-out infinite; }
-  .animate-blob3 { animation: blobMove3 20s ease-in-out infinite; }
-  .animate-blob4 { animation: blobMove4 26s ease-in-out infinite; }
-  .animate-blob5 { animation: blobMove5 24s ease-in-out infinite; }
+        /* ====== BLOB MOTION (unchanged) ================================ */
+        .animate-blob1 {
+          animation: blobMove1 18s ease-in-out infinite;
+        }
+        .animate-blob2 {
+          animation: blobMove2 22s ease-in-out infinite;
+        }
+        .animate-blob3 {
+          animation: blobMove3 20s ease-in-out infinite;
+        }
+        .animate-blob4 {
+          animation: blobMove4 26s ease-in-out infinite;
+        }
+        .animate-blob5 {
+          animation: blobMove5 24s ease-in-out infinite;
+        }
 
-  /* existing keyframes … */
-`}</style>
-
+        /* existing keyframes … */
+      `}</style>
     </div>
   );
 }

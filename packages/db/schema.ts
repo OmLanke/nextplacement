@@ -24,6 +24,11 @@ export const students = pgTable('students', {
   middleName: varchar({ length: 255 }),
   lastName: varchar({ length: 255 }),
   mothersName: varchar({ length: 255 }),
+  mothersEmail: text(),
+  mothersPhone: varchar({ length: 10 }),
+  fathersName: varchar({ length: 255 }),
+  fathersEmail: text(),
+  fathersPhone: varchar({ length: 10 }),
   gender: varchar({ length: 10 }),
   dob: timestamp(),
   personalGmail: text(),
@@ -274,4 +279,3 @@ export const admins = pgTable('admins', {
     .$onUpdate(() => new Date())
     .notNull(),
 });
-

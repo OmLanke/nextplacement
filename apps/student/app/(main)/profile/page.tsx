@@ -530,6 +530,74 @@ export default function ProfilePage() {
                     )}
                   </div>
                   <div>
+                    <Label htmlFor="mothersEmail">Mother's Email</Label>
+                    {editingSection === 'personal' ? (
+                      <Input 
+                        id="mothersEmail" 
+                        type="email"
+                        value={editData.mothersEmail || student.mothersEmail || ''} 
+                        onChange={(e) => handleInputChange('mothersEmail', e.target.value)}
+                        placeholder="mother@example.com"
+                      />
+                    ) : (
+                      <Input id="mothersEmail" value={student.mothersEmail || ''} readOnly />
+                    )}
+                  </div>
+                  <div>
+                    <Label htmlFor="mothersPhone">Mother's Phone</Label>
+                    {editingSection === 'personal' ? (
+                      <Input 
+                        id="mothersPhone" 
+                        type="tel"
+                        value={editData.mothersPhone || student.mothersPhone || ''} 
+                        onChange={(e) => handleInputChange('mothersPhone', e.target.value)}
+                        placeholder="10-digit number"
+                      />
+                    ) : (
+                      <Input id="mothersPhone" value={student.mothersPhone || ''} readOnly />
+                    )}
+                  </div>
+                  <div>
+                    <Label htmlFor="fathersName">Father's Name</Label>
+                    {editingSection === 'personal' ? (
+                      <Input 
+                        id="fathersName" 
+                        value={editData.fathersName || student.fathersName || ''} 
+                        onChange={(e) => handleInputChange('fathersName', e.target.value)}
+                      />
+                    ) : (
+                      <Input id="fathersName" value={student.fathersName || ''} readOnly />
+                    )}
+                  </div>
+                  <div>
+                    <Label htmlFor="fathersEmail">Father's Email</Label>
+                    {editingSection === 'personal' ? (
+                      <Input 
+                        id="fathersEmail" 
+                        type="email"
+                        value={editData.fathersEmail || student.fathersEmail || ''} 
+                        onChange={(e) => handleInputChange('fathersEmail', e.target.value)}
+                        placeholder="father@example.com"
+                      />
+                    ) : (
+                      <Input id="fathersEmail" value={student.fathersEmail || ''} readOnly />
+                    )}
+                  </div>
+                  <div>
+                    <Label htmlFor="fathersPhone">Father's Phone</Label>
+                    {editingSection === 'personal' ? (
+                      <Input 
+                        id="fathersPhone" 
+                        type="tel"
+                        value={editData.fathersPhone || student.fathersPhone || ''} 
+                        onChange={(e) => handleInputChange('fathersPhone', e.target.value)}
+                        placeholder="10-digit number"
+                      />
+                    ) : (
+                      <Input id="fathersPhone" value={student.fathersPhone || ''} readOnly />
+                    )}
+                  </div>
+                  <div>
                     <Label htmlFor="personalGmail">Personal Email</Label>
                     {editingSection === 'personal' ? (
                       <Input 

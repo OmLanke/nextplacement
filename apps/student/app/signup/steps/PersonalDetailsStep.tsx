@@ -79,9 +79,82 @@ export default function PersonalDetailsStep({ form }: { form: any }) {
           name="mothersName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Mother's Name *</FormLabel>
+              <FormLabel>Mother's Name</FormLabel>
               <FormControl>
                 <Input placeholder="Enter your mother's name" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+
+      {/* Parent contacts */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <FormField
+          control={form.control}
+          name="mothersEmail"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Mother's Email</FormLabel>
+              <FormControl>
+                <Input type="email" placeholder="mother@example.com" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="mothersPhone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Mother's Phone</FormLabel>
+              <FormControl>
+                <Input type="tel" placeholder="10-digit number" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <div className="hidden md:block" />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <FormField
+          control={form.control}
+          name="fathersName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Father's Name</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter your father's name" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="fathersEmail"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Father's Email</FormLabel>
+              <FormControl>
+                <Input type="email" placeholder="father@example.com" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="fathersPhone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Father's Phone</FormLabel>
+              <FormControl>
+                <Input type="tel" placeholder="10-digit number" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
