@@ -26,8 +26,28 @@ async function getAllJobsWithCompany() {
   });
 }
 
-export default async function JobsListPage() {
+export default async function JobsListPage({
+  searchParams,
+}: {
+  searchParams?: { q?: string; status?: string; companyId?: string };
+}) {
   const jobsWithCompany = await getAllJobsWithCompany();
+  const companiesList = await db.query.companies.findMany({ columns: { id: true, name: true } });
+
+  const q = (searchParams?.q ?? '').toLowerCase();
+  const status = searchParams?.status ?? 'all';
+  const companyId = Number(searchParams?.companyId ?? '0');
+
+  const filteredJobs = jobsWithCompany.filter((job) => {
+    if (status === 'active' && !job.active) return false;
+    if (status === 'inactive' && job.active) return false;
+    if (!Number.isNaN(companyId) && companyId > 0 && job.companyId !== companyId) return false;
+    if (q) {
+      const hay = `${job.title} ${job.company?.name ?? ''} ${job.location}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
 
   return (
     <div className="min-h-screen bg-[#f8fafc]">
@@ -52,24 +72,47 @@ export default async function JobsListPage() {
       {/* Search and Filters Section */}
       <div className="bg-white border-b border-gray-200 px-6 py-6">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
+          <form className="flex flex-wrap items-end gap-3" method="get">
+            <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
-                placeholder="Search jobs by title, company, or location..."
-                className="pl-10 h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                name="q"
+                defaultValue={searchParams?.q ?? ''}
+                placeholder="Search by title, company, or location"
+                className="pl-10 h-11 w-[320px] border-gray-300 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" className="flex items-center gap-2 border-gray-300">
-                <Filter className="w-4 h-4" />
-                Filters
-              </Button>
-              <Badge variant="secondary" className="bg-blue-100 text-blue-700 hover:bg-blue-200">
-                {jobsWithCompany.length} Jobs
-              </Badge>
+            <div>
+              <select
+                name="status"
+                defaultValue={status}
+                className="h-11 w-[160px] rounded-md border border-gray-300 bg-white px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
             </div>
-          </div>
+            <div>
+              <select
+                name="companyId"
+                defaultValue={searchParams?.companyId ?? ''}
+                className="h-11 w-[220px] rounded-md border border-gray-300 bg-white px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
+                <option value="">All Companies</option>
+                {companiesList.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+            <Button type="submit" className="h-11">Apply</Button>
+            <Link href="/jobs" className="h-11 inline-flex items-center justify-center rounded-md border px-4 text-sm text-gray-700 border-gray-300">
+              Reset
+            </Link>
+            <Badge variant="secondary" className="bg-blue-100 text-blue-700 hover:bg-blue-200 ml-auto">
+              {filteredJobs.length} / {jobsWithCompany.length} Jobs
+            </Badge>
+          </form>
         </div>
       </div>
 
@@ -91,7 +134,7 @@ export default async function JobsListPage() {
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {jobsWithCompany.map((job) => (
+            {filteredJobs.map((job) => (
               <Card 
                 key={job.id} 
                 className="group hover:shadow-lg transition-all duration-300 bg-white border border-gray-200 rounded-xl overflow-hidden"
