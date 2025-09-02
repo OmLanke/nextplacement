@@ -28,7 +28,7 @@ import {
   X,
   Edit,
   Download,
-  Share2
+  Share2,
 } from 'lucide-react';
 import { Switch } from '@workspace/ui/components/switch';
 
@@ -39,19 +39,22 @@ interface StudentDetailsModalProps {
   markoutAction: (state: boolean) => void;
 }
 
-export function StudentDetailsModal({ student, isOpen, onClose, markoutAction }: StudentDetailsModalProps) {
-  const fullName = [
-    student.firstName,
-    student.middleName,
-    student.lastName
-  ].filter(Boolean).join(' ') || 'Name not provided';
+export function StudentDetailsModal({
+  student,
+  isOpen,
+  onClose,
+  markoutAction,
+}: StudentDetailsModalProps) {
+  const fullName =
+    [student.firstName, student.middleName, student.lastName].filter(Boolean).join(' ') ||
+    'Name not provided';
 
   const formatDate = (date: Date | null) => {
     if (!date) return 'Not provided';
     return new Date(date).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     });
   };
 
@@ -76,9 +79,7 @@ export function StudentDetailsModal({ student, isOpen, onClose, markoutAction }:
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center justify-between">
-            <DialogTitle className="text-2xl font-bold text-gray-800">
-              Student Details
-            </DialogTitle>
+            <DialogTitle className="text-2xl font-bold text-gray-800">Student Details</DialogTitle>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <Switch
@@ -100,7 +101,7 @@ export function StudentDetailsModal({ student, isOpen, onClose, markoutAction }:
                   <span className="sr-only">Close</span>
                 </Button>
               </DialogClose>
-            </div>
+              </div>
           </div>
         </DialogHeader>
 
@@ -110,22 +111,25 @@ export function StudentDetailsModal({ student, isOpen, onClose, markoutAction }:
             <Avatar className="w-20 h-20">
               <AvatarImage src={student.profilePicture || undefined} />
               <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-2xl font-bold">
-                {student.firstName ? student.firstName.charAt(0).toUpperCase() : 
-                 student.email ? student.email.charAt(0).toUpperCase() : 'S'}
+                {student.firstName
+                  ? student.firstName.charAt(0).toUpperCase()
+                  : student.email
+                    ? student.email.charAt(0).toUpperCase()
+                    : 'S'}
               </AvatarFallback>
             </Avatar>
-            
+
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
                 <h2 className="text-2xl font-bold text-gray-800">{fullName}</h2>
-                <Badge 
-                  variant={student.verified ? "default" : "secondary"} 
+                <Badge
+                  variant={student.verified ? 'default' : 'secondary'}
                   className={`${student.verified ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}
                 >
                   {student.verified ? 'Verified' : 'Pending Verification'}
                 </Badge>
               </div>
-              
+
               <div className="flex items-center gap-4 text-sm text-gray-600">
                 <span className="font-medium">ID: #{student.id}</span>
                 {student.rollNumber && (
@@ -135,6 +139,45 @@ export function StudentDetailsModal({ student, isOpen, onClose, markoutAction }:
                   Joined: {formatDate(new Date(Number(student.createdAt)))}
                 </span>
               </div>
+              {/* Skills & Expertise */}
+              {student.skills && student.skills.length > 0 && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                    <Award className="w-5 h-5 text-orange-600" />
+                    Skills & Expertise
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {student.skills.map((skill, index) => (
+                      <Badge key={index} variant="outline" className="text-sm">
+                        {skill}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Professional Links */}
+              {(student.linkedin || student.github) && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                    <ExternalLink className="w-5 h-5 text-blue-600" />
+                    Professional Links
+                  </h3>
+                  <div className="flex gap-3">
+                    {student.linkedin && (
+                      <Button variant="outline" size="sm" className="flex items-center gap-2">
+                        <Linkedin className="w-4 h-4" />
+                        LinkedIn
+                      </Button>
+                    )}
+                    {student.github && (
+                      <Button variant="outline" size="sm" className="flex items-center gap-2">
+                        <Github className="w-4 h-4" />
+                        GitHub
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="flex gap-2">
@@ -156,7 +199,7 @@ export function StudentDetailsModal({ student, isOpen, onClose, markoutAction }:
                 <User className="w-5 h-5 text-blue-600" />
                 Personal Information
               </h3>
-              
+
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
                   <Mail className="w-4 h-4 text-gray-400" />
@@ -234,7 +277,7 @@ export function StudentDetailsModal({ student, isOpen, onClose, markoutAction }:
                 <GraduationCap className="w-5 h-5 text-green-600" />
                 Academic Information
               </h3>
-              
+
               <div className="space-y-3">
                 {student.degree && (
                   <div className="flex items-center gap-3">
@@ -280,7 +323,7 @@ export function StudentDetailsModal({ student, isOpen, onClose, markoutAction }:
               {/* Academic Scores */}
               <div className="space-y-3">
                 <h4 className="text-md font-semibold text-gray-700">Academic Scores</h4>
-                
+
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-gray-50 p-3 rounded-lg">
                     <p className="text-sm font-medium text-gray-700">SSC Score</p>
@@ -288,7 +331,7 @@ export function StudentDetailsModal({ student, isOpen, onClose, markoutAction }:
                       {formatPercentage(Number(student.ssc))}
                     </p>
                   </div>
-                  
+
                   <div className="bg-gray-50 p-3 rounded-lg">
                     <p className="text-sm font-medium text-gray-700">HSC Score</p>
                     <p className="text-lg font-bold text-gray-900">
@@ -297,49 +340,44 @@ export function StudentDetailsModal({ student, isOpen, onClose, markoutAction }:
                   </div>
                 </div>
               </div>
+
+              {/* Semester-wise Performance */}
+              {student.grades && student.grades.length > 0 && (
+                <div className="space-y-3 mt-4">
+                  <h4 className="text-md font-semibold text-gray-700">Semester-wise Performance</h4>
+                  <div className="overflow-x-auto rounded-lg border border-gray-200">
+                    <table className="w-full text-sm">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="text-left py-2 px-3">Semester</th>
+                          <th className="text-left py-2 px-3">SGPI</th>
+                          <th className="text-left py-2 px-3">KT</th>
+                          <th className="text-left py-2 px-3">Dead KT</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {student.grades
+                          .slice()
+                          .sort((a, b) => (a.sem ?? 0) - (b.sem ?? 0))
+                          .map((grade) => (
+                            <tr key={grade.sem} className="border-t">
+                              <td className="py-2 px-3">{grade.sem}</td>
+                              <td className="py-2 px-3">{String(grade.sgpi)}</td>
+                              <td className="py-2 px-3">{grade.isKT ? 'Yes' : 'No'}</td>
+                              <td className="py-2 px-3">{grade.deadKT ? 'Yes' : 'No'}</td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+              {/* Skills Section */}
             </div>
+            
+
+            
           </div>
-
-          {/* Skills Section */}
-          {student.skills && student.skills.length > 0 && (
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                <Award className="w-5 h-5 text-orange-600" />
-                Skills & Expertise
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {student.skills.map((skill, index) => (
-                  <Badge key={index} variant="outline" className="text-sm">
-                    {skill}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Professional Links */}
-          {(student.linkedin || student.github) && (
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                <ExternalLink className="w-5 h-5 text-blue-600" />
-                Professional Links
-              </h3>
-              <div className="flex gap-3">
-                {student.linkedin && (
-                  <Button variant="outline" size="sm" className="flex items-center gap-2">
-                    <Linkedin className="w-4 h-4" />
-                    LinkedIn
-                  </Button>
-                )}
-                {student.github && (
-                  <Button variant="outline" size="sm" className="flex items-center gap-2">
-                    <Github className="w-4 h-4" />
-                    GitHub
-                  </Button>
-                )}
-              </div>
-            </div>
-          )}
 
           {/* Footer Actions */}
           <Separator />
@@ -353,3 +391,4 @@ export function StudentDetailsModal({ student, isOpen, onClose, markoutAction }:
     </Dialog>
   );
 }
+
