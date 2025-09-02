@@ -352,11 +352,7 @@ export default function JobsPage({
                       </Button>
                     )}
                     {job.link && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => window.open(job.link as string, '_blank')}
-                      >
+                      <Button size="sm" variant="outline" onClick={() => window.open(String(job.link), '_blank')}>
                         <ExternalLink className="w-4 h-4 mr-2" />
                         View Details
                       </Button>
