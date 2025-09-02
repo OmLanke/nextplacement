@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import {
   Select,
   SelectTrigger,
@@ -31,6 +31,11 @@ export default function StatusSelect({
 }: StatusSelectProps) {
   const [status, setStatus] = useState(initialStatus);
   const [isPending, startTransition] = useTransition();
+
+  // Sync local state when parent updates the initialStatus (e.g., after bulk update)
+  useEffect(() => {
+    setStatus(initialStatus);
+  }, [initialStatus]);
 
   const handleChange = (value: string) => {
     setStatus(value); // Optimistic update

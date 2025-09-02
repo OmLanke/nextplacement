@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import StatusSelect from './StatusSelect';
+import ApplicationsTable from './ApplicationsTable';
 
 export const dynamic = 'force-dynamic';
 
@@ -321,35 +322,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ jobI
                   </p>
                 </div>
               ) : (
-                <div className="rounded-lg border border-gray-200 overflow-hidden">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="bg-gray-50">
-                        <TableHead className="font-medium text-gray-700">Name</TableHead>
-                        <TableHead className="font-medium text-gray-700">Email</TableHead>
-                        <TableHead className="font-medium text-gray-700">Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {applicants.map((applicant) => (
-                        <TableRow key={applicant.applicationId} className="hover:bg-gray-50">
-                          <TableCell className="font-medium">
-                            {`${applicant.firstName ?? ''} ${applicant.lastName ?? ''}`.trim() ||
-                              'Unknown'}
-                          </TableCell>
-                          <TableCell className="text-gray-600">{applicant.email}</TableCell>
-                          <TableCell>
-                            <StatusSelect
-                              applicationId={applicant.applicationId}
-                              initialStatus={applicant.status}
-                              studentId={applicant.studentId ?? 0}
-                            />
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
+                <ApplicationsTable applicants={applicants} />
               )}
             </CardContent>
           </Card>
