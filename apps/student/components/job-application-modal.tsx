@@ -69,18 +69,30 @@ export default function JobApplicationModal({ job, studentId, resumes, isApplied
     }
   };
 
-  const isDeadlinePassed = new Date() > job.applicationDeadline;
+  const isDeadlinePassed = new Date() > new Date(job.applicationDeadline as any);
+  const cannotApplyReason = isApplied
+    ? 'You have already applied to this job'
+    : resumes.length === 0
+      ? 'No resumes found. Please upload a resume first.'
+      : isDeadlinePassed
+        ? 'Application deadline has passed'
+        : null;
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button
-          size="sm"
-          className="bg-blue-600 hover:bg-blue-700"
-          disabled={isDeadlinePassed}
-        >
-          Apply Now
-        </Button>
+        <div className="flex flex-col items-start">
+          <Button
+            size="sm"
+            className="bg-blue-600 hover:bg-blue-700"
+            disabled={Boolean(cannotApplyReason)}
+          >
+            {isApplied ? 'Applied' : 'Apply Now'}
+          </Button>
+          {cannotApplyReason && (
+            <span className="mt-1 text-xs text-red-600">{cannotApplyReason}</span>
+          )}
+        </div>
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
@@ -180,7 +192,7 @@ export default function JobApplicationModal({ job, studentId, resumes, isApplied
             <div className="flex gap-3 pt-4">
               <Button
                 onClick={handleApply}
-                disabled={isApplying || resumes.length === 0}
+                disabled={isApplying || resumes.length === 0 || isApplied}
                 className="flex-1 bg-blue-600 hover:bg-blue-700"
               >
                 {isApplying ? 'Submitting...' : 'Submit Application'}

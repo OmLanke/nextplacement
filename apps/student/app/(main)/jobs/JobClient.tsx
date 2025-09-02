@@ -43,28 +43,33 @@ export type Job = InferSelectModel<typeof jobs> & {
 export type Resume = typeof resumes.$inferSelect;
 
 export default function JobsPage({
-  jobs,
+  eligibleJobs,
+  ineligibleJobs,
   resumes,
   studentId,
   appliedJobIds = [],
 }: {
-  jobs: Job[];
+  eligibleJobs: Job[];
+  ineligibleJobs: Job[];
   resumes: Resume[];
   studentId: number;
   appliedJobIds?: number[];
 }) {
   const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
+  const [activeTab, setActiveTab] = useState<'eligible' | 'ineligible'>('eligible');
   const [searchTerm, setSearchTerm] = useState('');
   const [locationFilter, setLocationFilter] = useState('all');
   const [jobTypeFilter, setJobTypeFilter] = useState('all');
   const [showLoadMore, setShowLoadMore] = useState(false);
+  const allJobs = [...eligibleJobs, ...ineligibleJobs];
 
   useEffect(() => {
     filterJobs();
-  }, [jobs, searchTerm, locationFilter, jobTypeFilter]);
+  }, [eligibleJobs, ineligibleJobs, activeTab, searchTerm, locationFilter, jobTypeFilter]);
 
   const filterJobs = () => {
-    let filtered = [...jobs];
+    let base = activeTab === 'eligible' ? eligibleJobs : ineligibleJobs;
+    let filtered = [...base];
 
     // Search filter
     if (searchTerm) {
@@ -180,7 +185,7 @@ export default function JobsPage({
                   Clear Filters
                 </Button>
                 <span className="text-sm text-gray-500">
-                  {filteredJobs.length} of {jobs.length} jobs
+                  {filteredJobs.length} of {allJobs.length} jobs
                 </span>
               </div>
             )}
@@ -194,7 +199,7 @@ export default function JobsPage({
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Total Jobs</p>
-                  <p className="text-3xl font-bold text-gray-800">{jobs.length}</p>
+                  <p className="text-3xl font-bold text-gray-800">{allJobs.length}</p>
                 </div>
                 <Briefcase className="w-8 h-8 text-blue-600" />
               </div>
@@ -207,7 +212,7 @@ export default function JobsPage({
                 <div>
                   <p className="text-sm font-medium text-gray-600">Active Companies</p>
                   <p className="text-3xl font-bold text-gray-800">
-                    {new Set(jobs.map((job) => job.company.name)).size}
+                    {new Set(allJobs.map((job) => job.company.name)).size}
                   </p>
                 </div>
                 <Building2 className="w-8 h-8 text-green-600" />
@@ -221,7 +226,7 @@ export default function JobsPage({
                 <div>
                   <p className="text-sm font-medium text-gray-600">Remote Jobs</p>
                   <p className="text-3xl font-bold text-gray-800">
-                    {jobs.filter((job) => job.location.toLowerCase().includes('remote')).length}
+                    {allJobs.filter((job) => job.location.toLowerCase().includes('remote')).length}
                   </p>
                 </div>
                 <Users className="w-8 h-8 text-purple-600" />
@@ -241,6 +246,42 @@ export default function JobsPage({
             </CardContent>
           </Card>
         </div>
+
+        {/* Tabs */}
+        <Card className="bg-white shadow-sm mb-6">
+          <CardContent className="p-6">
+            <div className="text-center mb-3">
+              <h2 className="text-lg font-semibold text-gray-800">Select a category to view jobs</h2>
+              <p className="text-sm text-gray-500">Switch between eligible and not eligible jobs based on your profile</p>
+            </div>
+            <div className="flex items-center justify-center">
+              <div className="inline-flex rounded-full border border-gray-200 bg-gray-50 p-1">
+                <Button
+                  variant={activeTab === 'eligible' ? 'default' : 'ghost'}
+                  size="sm"
+                  className={`rounded-full px-5 ${activeTab === 'eligible' ? '' : 'text-gray-700'}`}
+                  onClick={() => setActiveTab('eligible')}
+                >
+                  Eligible
+                  <span className={`ml-2 inline-flex items-center justify-center rounded-full text-xs px-2 py-0.5 ${activeTab === 'eligible' ? 'bg-white text-gray-900' : 'bg-gray-200 text-gray-700'}`}>
+                    {eligibleJobs.length}
+                  </span>
+                </Button>
+                <Button
+                  variant={activeTab === 'ineligible' ? 'default' : 'ghost'}
+                  size="sm"
+                  className={`rounded-full px-5 ${activeTab === 'ineligible' ? '' : 'text-gray-700'}`}
+                  onClick={() => setActiveTab('ineligible')}
+                >
+                  Not Eligible
+                  <span className={`ml-2 inline-flex items-center justify-center rounded-full text-xs px-2 py-0.5 ${activeTab === 'ineligible' ? 'bg-white text-gray-900' : 'bg-gray-200 text-gray-700'}`}>
+                    {ineligibleJobs.length}
+                  </span>
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Jobs Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -298,13 +339,24 @@ export default function JobsPage({
 
                 <div className="flex items-center justify-between">
                   <div className="flex gap-2">
-                    <JobApplicationModal
-                      job={{ ...job, minCGPA: Number(job.minCGPA) }}
-                      studentId={studentId} // Mock student ID - in real app this would come from auth
-                      resumes={resumes}
-                    />
+                    {activeTab === 'eligible' ? (
+                      <JobApplicationModal
+                        job={{ ...job, minCGPA: Number(job.minCGPA) }}
+                        studentId={studentId}
+                        resumes={resumes}
+                        isApplied={appliedJobIds.includes(job.id)}
+                      />
+                    ) : (
+                      <Button size="sm" variant="outline" disabled>
+                        Not Eligible
+                      </Button>
+                    )}
                     {job.link && (
-                      <Button size="sm" variant="outline">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => window.open(job.link as string, '_blank')}
+                      >
                         <ExternalLink className="w-4 h-4 mr-2" />
                         View Details
                       </Button>
