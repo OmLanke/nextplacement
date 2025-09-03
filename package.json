@@ -32,5 +32,8 @@
       "esbuild",
       "sharp"
     ]
+  },
+  "dependencies": {
+    "nodemailer": "^7.0.6"
   }
 }

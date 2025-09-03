@@ -36,6 +36,7 @@ export default function ApplicationsTable({ applicants }: { applicants: Applican
   const [selected, setSelected] = useState<number[]>([]);
   const [bulkStatus, setBulkStatus] = useState<string>('');
   const [rows, setRows] = useState<Applicant[]>(applicants);
+  const [sendEmail, setSendEmail] = useState<boolean>(false);
   const [isPending, startTransition] = useTransition();
 
   const filtered = useMemo(() => {
@@ -61,17 +62,40 @@ export default function ApplicationsTable({ applicants }: { applicants: Applican
     const targets = new Set(selected);
     startTransition(async () => {
       const updates = rows.filter((r) => targets.has(r.applicationId));
+      let notifiedCount = 0;
+      let errorCount = 0;
       for (const r of updates) {
-        await fetch(`/api/applications/${r.applicationId}/status`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: bulkStatus, studentId: r.studentId ?? 0 }),
-        });
+        try {
+          const res = await fetch(`/api/applications/${r.applicationId}/status`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: bulkStatus, studentId: r.studentId ?? 0, notify: sendEmail }),
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            errorCount += 1;
+          } else if (sendEmail) {
+            if (data?.notified) notifiedCount += 1;
+            if (data?.emailError) errorCount += 1;
+          }
+        } catch (_e) {
+          errorCount += 1;
+        }
       }
       setRows((prev) =>
         prev.map((r) => (targets.has(r.applicationId) ? { ...r, status: bulkStatus } : r)),
       );
       setSelected([]);
+
+      if (sendEmail) {
+        if (errorCount === 0) {
+          alert(`Updated ${updates.length} and emailed ${notifiedCount} student(s).`);
+        } else {
+          alert(`Updated ${updates.length}. Emails sent: ${notifiedCount}. Errors: ${errorCount}.`);
+        }
+      } else {
+        alert(`Updated ${updates.length}.`);
+      }
     });
   };
 
@@ -103,6 +127,14 @@ export default function ApplicationsTable({ applicants }: { applicants: Applican
               ))}
             </SelectContent>
           </Select>
+          <label className="flex items-center gap-2 text-sm text-gray-700">
+            <input
+              type="checkbox"
+              checked={sendEmail}
+              onChange={(e) => setSendEmail(e.target.checked)}
+            />
+            Send email notifications
+          </label>
           <Button onClick={onBulkUpdate} disabled={!bulkStatus || selected.length === 0 || isPending}>
             Update {selected.length || ''}
           </Button>
