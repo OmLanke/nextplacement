@@ -29,14 +29,17 @@ async function getAllJobsWithCompany() {
 export default async function JobsListPage({
   searchParams,
 }: {
-  searchParams?: { q?: string; status?: string; companyId?: string };
+  searchParams?: Promise<{ q?: string; status?: string; companyId?: string }>;
 }) {
   const jobsWithCompany = await getAllJobsWithCompany();
   const companiesList = await db.query.companies.findMany({ columns: { id: true, name: true } });
 
-  const q = (searchParams?.q ?? '').toLowerCase();
-  const status = searchParams?.status ?? 'all';
-  const companyId = Number(searchParams?.companyId ?? '0');
+  // Await searchParams before accessing its properties
+  const params = await searchParams;
+  
+  const q = (params?.q ?? '').toLowerCase();
+  const status = params?.status ?? 'all';
+  const companyId = Number(params?.companyId ?? '0');
 
   const filteredJobs = jobsWithCompany.filter((job) => {
     if (status === 'active' && !job.active) return false;
@@ -77,7 +80,7 @@ export default async function JobsListPage({
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
                 name="q"
-                defaultValue={searchParams?.q ?? ''}
+                defaultValue={params?.q ?? ''}
                 placeholder="Search by title, company, or location"
                 className="pl-10 h-11 w-[320px] border-gray-300 focus:border-blue-500 focus:ring-blue-500"
               />
@@ -96,7 +99,7 @@ export default async function JobsListPage({
             <div>
               <select
                 name="companyId"
-                defaultValue={searchParams?.companyId ?? ''}
+                defaultValue={params?.companyId ?? ''}
                 className="h-11 w-[220px] rounded-md border border-gray-300 bg-white px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               >
                 <option value="">All Companies</option>
