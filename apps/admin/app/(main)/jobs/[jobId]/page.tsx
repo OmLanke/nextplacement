@@ -15,11 +15,13 @@ import {
   ExternalLink,
   Users,
   FileText,
-  Clock
+  Clock,
+  Download
 } from 'lucide-react';
 import Link from 'next/link';
 import StatusSelect from './StatusSelect';
 import ApplicationsTable from './ApplicationsTable';
+import ExportButton from './ExportButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -303,13 +305,22 @@ export default async function JobDetailPage({ params }: { params: Promise<{ jobI
         <div className="mt-12">
           <Card className="border border-gray-200 shadow-sm">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="w-5 h-5 text-gray-600" />
-                Student Applications ({applicants.length})
-              </CardTitle>
-              <CardDescription>
-                View all students who have applied for this position
-              </CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="w-5 h-5 text-gray-600" />
+                    Student Applications ({applicants.length})
+                  </CardTitle>
+                  <CardDescription>
+                    View all students who have applied for this position
+                  </CardDescription>
+                </div>
+                <ExportButton 
+                  applicants={applicants} 
+                  jobId={jobId} 
+                  jobTitle={job.title}
+                />
+              </div>
             </CardHeader>
             <CardContent>
               {applicants.length === 0 ? (
