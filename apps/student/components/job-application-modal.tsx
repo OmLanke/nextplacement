@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { Button } from "@workspace/ui/components/button"
 import { Badge } from "@workspace/ui/components/badge"
@@ -37,7 +37,7 @@ interface JobApplicationModalProps {
 export default function JobApplicationModal({ job, studentId, resumes, isApplied = false }: JobApplicationModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedResume, setSelectedResume] = useState<string>('');
-  const [isApplying, setIsApplying] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const handleApply = async () => {
@@ -46,27 +46,26 @@ export default function JobApplicationModal({ job, studentId, resumes, isApplied
       return;
     }
 
-    setIsApplying(true);
     setMessage(null);
 
-    try {
-      const result = await applyForJob(job.id, studentId, parseInt(selectedResume));
+    startTransition(async () => {
+      try {
+        const result = await applyForJob(job.id, studentId, parseInt(selectedResume));
 
-      if (result.success) {
-        setMessage({ type: 'success', text: 'Application submitted successfully!' });
-        setTimeout(() => {
-          setIsOpen(false);
-          setMessage(null);
-          setSelectedResume('');
-        }, 2000);
-      } else {
-        setMessage({ type: 'error', text: result.error || 'Failed to submit application' });
+        if (result.success) {
+          setMessage({ type: 'success', text: 'Application submitted successfully!' });
+          setTimeout(() => {
+            setIsOpen(false);
+            setMessage(null);
+            setSelectedResume('');
+          }, 2000);
+        } else {
+          setMessage({ type: 'error', text: result.error || 'Failed to submit application' });
+        }
+      } catch (error) {
+        setMessage({ type: 'error', text: 'An error occurred while submitting your application' });
       }
-    } catch (error) {
-      setMessage({ type: 'error', text: 'An error occurred while submitting your application' });
-    } finally {
-      setIsApplying(false);
-    }
+    });
   };
 
   const isDeadlinePassed = new Date() > new Date(job.applicationDeadline as any);
@@ -192,15 +191,15 @@ export default function JobApplicationModal({ job, studentId, resumes, isApplied
             <div className="flex gap-3 pt-4">
               <Button
                 onClick={handleApply}
-                disabled={isApplying || resumes.length === 0 || isApplied}
+                disabled={isPending || resumes.length === 0 || isApplied}
                 className="flex-1 bg-blue-600 hover:bg-blue-700"
               >
-                {isApplying ? 'Submitting...' : 'Submit Application'}
+                {isPending ? 'Submitting...' : 'Submit Application'}
               </Button>
               <Button
                 variant="outline"
                 onClick={() => setIsOpen(false)}
-                disabled={isApplying}
+                disabled={isPending}
               >
                 Cancel
               </Button>

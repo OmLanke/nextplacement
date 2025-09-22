@@ -1,6 +1,6 @@
 'use server';
 import { signOut } from '@/auth';
-import { db, applications, jobs, students, resumes } from '@workspace/db';
+import { db, applications, jobs, students, resumes, grades, internships } from '@workspace/db';
 import { eq, and } from '@workspace/db/drizzle';
 import { revalidatePath } from 'next/cache';
 
@@ -76,19 +76,116 @@ export async function getStudentProfile(studentId: number) {
 
 export async function updateStudentProfile(studentId: number, data: any) {
   try {
-    await db
-      .update(students)
-      .set({
-        ...data,
-        updatedAt: new Date(),
-      })
-      .where(eq(students.id, studentId));
+    const { section, ...updateData } = data;
 
-    revalidatePath('/profile');
-    return { success: true };
+    switch (section) {
+      case 'grades':
+        return await updateGrades(studentId, updateData.grades);
+        
+      case 'internships':
+        return await updateInternships(studentId, updateData.internships);
+        
+      case 'resumes':
+        return await updateResumes(studentId, updateData.resumes);
+        
+      default:
+        // Update student basic information
+        await db
+          .update(students)
+          .set({
+            ...updateData,
+            updatedAt: new Date(),
+          })
+          .where(eq(students.id, studentId));
+        
+        revalidatePath('/profile');
+        return { success: true };
+    }
   } catch (error) {
     console.error('Error updating student profile:', error);
     return { success: false, error: 'Failed to update profile' };
+  }
+}
+
+async function updateGrades(studentId: number, gradesList: any[]) {
+  try {
+    // Delete existing grades for this student
+    await db.delete(grades).where(eq(grades.studentId, studentId));
+    
+    // Insert new grades
+    if (gradesList && gradesList.length > 0) {
+      const validGrades = gradesList.filter(grade => grade.sgpi > 0); // Only save grades with SGPI > 0
+      
+      if (validGrades.length > 0) {
+        await db.insert(grades).values(
+          validGrades.map(grade => ({
+            studentId,
+            sem: parseInt(grade.sem),
+            sgpi: parseFloat(grade.sgpi).toFixed(2),
+            isKT: Boolean(grade.isKT),
+            deadKT: Boolean(grade.deadKT),
+          }))
+        );
+      }
+    }
+    
+    revalidatePath('/profile');
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating grades:', error);
+    return { success: false, error: 'Failed to update grades' };
+  }
+}
+
+async function updateInternships(studentId: number, internshipsList: any[]) {
+  try {
+    // Delete existing internships for this student
+    await db.delete(internships).where(eq(internships.studentId, studentId));
+    
+    // Insert new internships
+    if (internshipsList && internshipsList.length > 0) {
+      await db.insert(internships).values(
+        internshipsList.map(internship => ({
+          studentId,
+          title: internship.title,
+          company: internship.company,
+          location: internship.location,
+          description: internship.description,
+          startDate: new Date(internship.startDate),
+          endDate: new Date(internship.endDate),
+        }))
+      );
+    }
+    
+    revalidatePath('/profile');
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating internships:', error);
+    return { success: false, error: 'Failed to update internships' };
+  }
+}
+
+async function updateResumes(studentId: number, resumesList: any[]) {
+  try {
+    // Delete existing resumes for this student
+    await db.delete(resumes).where(eq(resumes.studentId, studentId));
+    
+    // Insert new resumes
+    if (resumesList && resumesList.length > 0) {
+      await db.insert(resumes).values(
+        resumesList.map(resume => ({
+          studentId,
+          title: resume.title,
+          link: resume.link,
+        }))
+      );
+    }
+    
+    revalidatePath('/profile');
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating resumes:', error);
+    return { success: false, error: 'Failed to update resumes' };
   }
 }
 

@@ -1,7 +1,7 @@
 'use client';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { useSession } from 'next-auth/react';
 import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { Button } from "@workspace/ui/components/button"
@@ -53,6 +53,8 @@ export default function ProfilePage() {
   const [editingGrades, setEditingGrades] = useState<any[]>([]);
   const [editingInternships, setEditingInternships] = useState<any[]>([]);
   const [editingResumes, setEditingResumes] = useState<any[]>([]);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
   const [newInternship, setNewInternship] = useState({
     title: '',
     company: '',
@@ -92,6 +94,7 @@ export default function ProfilePage() {
   const handleEdit = (section: string) => {
     setEditingSection(section);
     setEditData({});
+    setError(null); // Clear any previous errors
   };
 
   const handleCancel = () => {
@@ -100,21 +103,22 @@ export default function ProfilePage() {
   };
 
   const handleSave = async (section: string) => {
-    setIsSaving(true);
-    try {
-      const result = await updateStudentProfile(student.id, editData);
-      if (result.success) {
-        setStudent((prev: Record<string, any> | null) => ({ ...(prev || {}), ...editData }));
-        setEditingSection(null);
-        setEditData({});
-      } else {
-        setError(result.error || 'Failed to update profile');
+    startTransition(async () => {
+      try {
+        const result = await updateStudentProfile(student.id, editData);
+        if (result.success) {
+          setStudent((prev: Record<string, any> | null) => ({ ...(prev || {}), ...editData }));
+          setEditingSection(null);
+          setEditData({});
+          setSuccessMessage('Profile updated successfully!');
+          setTimeout(() => setSuccessMessage(null), 3000);
+        } else {
+          setError(result.error || 'Failed to update profile');
+        }
+      } catch (err) {
+        setError('Failed to update profile');
       }
-    } catch (err) {
-      setError('Failed to update profile');
-    } finally {
-      setIsSaving(false);
-    }
+    });
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -143,40 +147,59 @@ export default function ProfilePage() {
   };
 
   const saveSkills = async () => {
-    setIsSaving(true);
-    try {
-      const result = await updateStudentProfile(student.id, { skills: editingSkills });
-      if (result.success) {
-        setStudent((prev: Record<string, any> | null) => ({ ...(prev || {}), skills: editingSkills }));
-        setEditingSection(null);
-      } else {
-        setError(result.error || 'Failed to update skills');
+    startTransition(async () => {
+      try {
+        const result = await updateStudentProfile(student.id, { skills: editingSkills });
+        if (result.success) {
+          setStudent((prev: Record<string, any> | null) => ({ ...(prev || {}), skills: editingSkills }));
+          setEditingSection(null);
+          setSuccessMessage('Skills updated successfully!');
+          setTimeout(() => setSuccessMessage(null), 3000);
+        } else {
+          setError(result.error || 'Failed to update skills');
+        }
+      } catch (err) {
+        setError('Failed to update skills');
       }
-    } catch (err) {
-      setError('Failed to update skills');
-    } finally {
-      setIsSaving(false);
-    }
+    });
   };
 
   const handleEditSkills = () => {
-    setEditingSkills(student.skills || []);
+    setEditingSkills([...(student.skills || [])]);
     setEditingSection('skills');
+    setError(null); // Clear any previous errors
   };
 
   const handleEditGrades = () => {
-    setEditingGrades(student.grades || []);
+    // Initialize with existing grades or create default grades for 8 semesters
+    const existingGrades = student.grades || [];
+    const defaultGrades = [];
+    
+    for (let sem = 1; sem <= 8; sem++) {
+      const existingGrade = existingGrades.find((g: any) => g.sem === sem);
+      defaultGrades.push({
+        sem,
+        sgpi: existingGrade?.sgpi || 0,
+        isKT: existingGrade?.isKT || false,
+        deadKT: existingGrade?.deadKT || false,
+      });
+    }
+    
+    setEditingGrades(defaultGrades);
     setEditingSection('grades');
+    setError(null); // Clear any previous errors
   };
 
   const handleEditInternships = () => {
-    setEditingInternships(student.internships || []);
+    setEditingInternships([...(student.internships || [])]);
     setEditingSection('internships');
+    setError(null); // Clear any previous errors
   };
 
   const handleEditResumes = () => {
-    setEditingResumes(student.resumes || []);
+    setEditingResumes([...(student.resumes || [])]);
     setEditingSection('resumes');
+    setError(null); // Clear any previous errors
   };
 
   const updateGrade = (sem: number, field: string, value: any) => {
@@ -217,54 +240,57 @@ export default function ProfilePage() {
   };
 
   const saveGrades = async () => {
-    setIsSaving(true);
-    try {
-      const result = await updateStudentProfile(student.id, { grades: editingGrades });
-      if (result.success) {
-        setStudent((prev: Record<string, any> | null) => ({ ...(prev || {}), grades: editingGrades }));
-        setEditingSection(null);
-      } else {
-        setError(result.error || 'Failed to update grades');
+    startTransition(async () => {
+      try {
+        const result = await updateStudentProfile(student.id, { section: 'grades', grades: editingGrades });
+        if (result.success) {
+          setStudent((prev: Record<string, any> | null) => ({ ...(prev || {}), grades: editingGrades }));
+          setEditingSection(null);
+          setSuccessMessage('Grades updated successfully!');
+          setTimeout(() => setSuccessMessage(null), 3000);
+        } else {
+          setError(result.error || 'Failed to update grades');
+        }
+      } catch (err) {
+        setError('Failed to update grades');
       }
-    } catch (err) {
-      setError('Failed to update grades');
-    } finally {
-      setIsSaving(false);
-    }
+    });
   };
 
   const saveInternships = async () => {
-    setIsSaving(true);
-    try {
-      const result = await updateStudentProfile(student.id, { internships: editingInternships });
-      if (result.success) {
-        setStudent((prev: Record<string, any> | null) => ({ ...(prev || {}), internships: editingInternships }));
-        setEditingSection(null);
-      } else {
-        setError(result.error || 'Failed to update internships');
+    startTransition(async () => {
+      try {
+        const result = await updateStudentProfile(student.id, { section: 'internships', internships: editingInternships });
+        if (result.success) {
+          setStudent((prev: Record<string, any> | null) => ({ ...(prev || {}), internships: editingInternships }));
+          setEditingSection(null);
+          setSuccessMessage('Internships updated successfully!');
+          setTimeout(() => setSuccessMessage(null), 3000);
+        } else {
+          setError(result.error || 'Failed to update internships');
+        }
+      } catch (err) {
+        setError('Failed to update internships');
       }
-    } catch (err) {
-      setError('Failed to update internships');
-    } finally {
-      setIsSaving(false);
-    }
+    });
   };
 
   const saveResumes = async () => {
-    setIsSaving(true);
-    try {
-      const result = await updateStudentProfile(student.id, { resumes: editingResumes });
-      if (result.success) {
-        setStudent((prev: Record<string, any> | null) => ({ ...(prev || {}), resumes: editingResumes }));
-        setEditingSection(null);
-      } else if ('error' in result) {
-        setError(result.error || 'Failed to update resumes');
+    startTransition(async () => {
+      try {
+        const result = await updateStudentProfile(student.id, { section: 'resumes', resumes: editingResumes });
+        if (result.success) {
+          setStudent((prev: Record<string, any> | null) => ({ ...(prev || {}), resumes: editingResumes }));
+          setEditingSection(null);
+          setSuccessMessage('Resumes updated successfully!');
+          setTimeout(() => setSuccessMessage(null), 3000);
+        } else {
+          setError(result.error || 'Failed to update resumes');
+        }
+      } catch (err) {
+        setError('Failed to update resumes');
       }
-    } catch (err) {
-      setError('Failed to update resumes');
-    } finally {
-      setIsSaving(false);
-    }
+    });
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -342,6 +368,12 @@ export default function ProfilePage() {
             <div className="mt-4 p-3 bg-red-100 text-red-700 rounded-lg">
               <AlertCircle className="w-4 h-4 inline mr-2" />
               {error}
+            </div>
+          )}
+          {successMessage && (
+            <div className="mt-4 p-3 bg-green-100 text-green-700 rounded-lg">
+              <CheckCircle className="w-4 h-4 inline mr-2" />
+              {successMessage}
             </div>
           )}
         </div>
@@ -467,9 +499,9 @@ export default function ProfilePage() {
                     </Button>
                   ) : (
                     <div className="flex gap-2">
-                      <Button size="sm" onClick={() => handleSave('personal')} disabled={isSaving}>
+                      <Button size="sm" onClick={() => handleSave('personal')} disabled={isPending}>
                         <Save className="w-4 h-4 mr-2" />
-                        {isSaving ? 'Saving...' : 'Save'}
+                        {isPending ? 'Saving...' : 'Save'}
                       </Button>
                       <Button size="sm" variant="outline" onClick={handleCancel}>
                         <X className="w-4 h-4 mr-2" />
@@ -706,9 +738,9 @@ export default function ProfilePage() {
                     </Button>
                   ) : (
                     <div className="flex gap-2">
-                      <Button size="sm" onClick={() => handleSave('academic')} disabled={isSaving}>
+                      <Button size="sm" onClick={() => handleSave('academic')} disabled={isPending}>
                         <Save className="w-4 h-4 mr-2" />
-                        {isSaving ? 'Saving...' : 'Save'}
+                        {isPending ? 'Saving...' : 'Save'}
                       </Button>
                       <Button size="sm" variant="outline" onClick={handleCancel}>
                         <X className="w-4 h-4 mr-2" />
@@ -857,9 +889,9 @@ export default function ProfilePage() {
                     </Button>
                   ) : (
                     <div className="flex gap-2">
-                      <Button size="sm" onClick={saveSkills} disabled={isSaving}>
+                      <Button size="sm" onClick={saveSkills} disabled={isPending}>
                         <Save className="w-4 h-4 mr-2" />
-                        {isSaving ? 'Saving...' : 'Save'}
+                        {isPending ? 'Saving...' : 'Save'}
                       </Button>
                       <Button size="sm" variant="outline" onClick={handleCancel}>
                         <X className="w-4 h-4 mr-2" />
@@ -927,9 +959,9 @@ export default function ProfilePage() {
                     </Button>
                   ) : (
                     <div className="flex gap-2">
-                      <Button size="sm" onClick={saveGrades} disabled={isSaving}>
+                      <Button size="sm" onClick={saveGrades} disabled={isPending}>
                         <Save className="w-4 h-4 mr-2" />
-                        {isSaving ? 'Saving...' : 'Save'}
+                        {isPending ? 'Saving...' : 'Save'}
                       </Button>
                       <Button size="sm" variant="outline" onClick={handleCancel}>
                         <X className="w-4 h-4 mr-2" />
@@ -959,13 +991,14 @@ export default function ProfilePage() {
                               value={grade.sgpi || ''}
                               onChange={(e) => updateGrade(grade.sem, 'sgpi', parseFloat(e.target.value) || 0)}
                               type="number"
-                              step="1"
+                              step="0.01"
                               min="0"
                               max="10"
                               className="w-20"
+                              placeholder="0.00"
                             />
                           ) : (
-                            grade.sgpi
+                            typeof grade.sgpi === 'number' ? grade.sgpi.toFixed(2) : (parseFloat(grade.sgpi) || 0).toFixed(2)
                           )}
                         </td>
                         <td className="py-2">
@@ -1036,9 +1069,9 @@ export default function ProfilePage() {
                     </Button>
                   ) : (
                     <div className="flex gap-2">
-                      <Button size="sm" onClick={saveInternships} disabled={isSaving}>
+                      <Button size="sm" onClick={saveInternships} disabled={isPending}>
                         <Save className="w-4 h-4 mr-2" />
-                        {isSaving ? 'Saving...' : 'Save'}
+                        {isPending ? 'Saving...' : 'Save'}
                       </Button>
                       <Button size="sm" variant="outline" onClick={handleCancel}>
                         <X className="w-4 h-4 mr-2" />
@@ -1172,9 +1205,9 @@ export default function ProfilePage() {
                     </Button>
                   ) : (
                     <div className="flex gap-2">
-                      <Button size="sm" onClick={saveResumes} disabled={isSaving}>
+                      <Button size="sm" onClick={saveResumes} disabled={isPending}>
                         <Save className="w-4 h-4 mr-2" />
-                        {isSaving ? 'Saving...' : 'Save'}
+                        {isPending ? 'Saving...' : 'Save'}
                       </Button>
                       <Button size="sm" variant="outline" onClick={handleCancel}>
                         <X className="w-4 h-4 mr-2" />
