@@ -263,7 +263,6 @@ export default async function JobDetailPage({ params }: { params: Promise<{ jobI
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">{company?.name}</p>
-                    <p className="text-sm text-gray-600">{company?.email}</p>
                   </div>
                 </div>
                 {company?.description && (
