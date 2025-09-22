@@ -41,7 +41,6 @@ function NewJobForm({ companies }: { companies: { id: number; name: string }[] }
   const [addingCompany, setAddingCompany] = useState(false)
   const [companyList, setCompanyList] = useState(companies)
   const [newCompanyName, setNewCompanyName] = useState("")
-  const [newCompanyEmail, setNewCompanyEmail] = useState("")
   const [newCompanyLink, setNewCompanyLink] = useState("")
   const [newCompanyDescription, setNewCompanyDescription] = useState("")
   const [newCompanyImageURL, setNewCompanyImageURL] = useState("")
@@ -104,15 +103,14 @@ function NewJobForm({ companies }: { companies: { id: number; name: string }[] }
     e.preventDefault()
     setCompanyError(null)
 
-    if (!newCompanyName.trim() || !newCompanyEmail.trim() || !newCompanyLink.trim() || !newCompanyDescription.trim()) {
-      setCompanyError("Please fill in all required fields")
+    if (!newCompanyName.trim()) {
+      setCompanyError("Please enter a company name")
       return
     }
 
     setAddingCompany(true)
     const formData = new FormData()
     formData.append("name", newCompanyName.trim())
-    formData.append("email", newCompanyEmail.trim())
     formData.append("link", newCompanyLink.trim())
     formData.append("description", newCompanyDescription.trim())
     formData.append("imageURL", newCompanyImageURL.trim())
@@ -122,7 +120,6 @@ function NewJobForm({ companies }: { companies: { id: number; name: string }[] }
       setCompanyList((prev) => [...prev, result.company])
       form.setValue("companyId", result.company.id)
       setNewCompanyName("")
-      setNewCompanyEmail("")
       setNewCompanyLink("")
       setNewCompanyDescription("")
       setNewCompanyImageURL("")
@@ -222,22 +219,11 @@ function NewJobForm({ companies }: { companies: { id: number; name: string }[] }
                                   />
                                 </div>
                                 <div className="space-y-2">
-                                  <label className="text-sm font-medium text-gray-700">Contact Email *</label>
-                                  <Input
-                                    value={newCompanyEmail}
-                                    onChange={(e) => setNewCompanyEmail(e.target.value)}
-                                    placeholder="contact@company.com"
-                                    type="email"
-                                    required
-                                  />
-                                </div>
-                                <div className="space-y-2">
-                                  <label className="text-sm font-medium text-gray-700">Website *</label>
+                                  <label className="text-sm font-medium text-gray-700">Website</label>
                                   <Input
                                     value={newCompanyLink}
                                     onChange={(e) => setNewCompanyLink(e.target.value)}
                                     placeholder="https://company.com"
-                                    required
                                   />
                                 </div>
                                 <div className="space-y-2">
@@ -249,13 +235,12 @@ function NewJobForm({ companies }: { companies: { id: number; name: string }[] }
                                   />
                                 </div>
                                 <div className="space-y-2">
-                                  <label className="text-sm font-medium text-gray-700">Description *</label>
+                                  <label className="text-sm font-medium text-gray-700">Description</label>
                                   <Textarea
                                     value={newCompanyDescription}
                                     onChange={(e) => setNewCompanyDescription(e.target.value)}
                                     placeholder="Brief description of the company..."
                                     className="min-h-[80px] resize-none"
-                                    required
                                   />
                                 </div>
                                 {companyError && (

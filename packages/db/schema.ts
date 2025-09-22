@@ -188,9 +188,8 @@ export const gradeRelations = relations(grades, ({ one }) => ({
 export const companies = pgTable('companies', {
   id: serial().primaryKey(),
   name: text().notNull(),
-  email: text().notNull(),
-  link: text().notNull(),
-  description: text().notNull(),
+  link: text(),
+  description: text(),
   // passwordHash: text(),
   imageURL: text().notNull(),
   createdAt: timestamp().notNull().defaultNow(),
