@@ -136,11 +136,11 @@ export default function AcademicDetailsStep({ form }: { form: any }) {
           name="hsc"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>HSC % *</FormLabel>
+              <FormLabel>{form.watch('isDiploma') ? 'Diploma % *' : 'HSC % *'}</FormLabel>
               <FormControl>
                 <Input
                   type="number"
-                  placeholder="12th percentage"
+                  placeholder={form.watch('isDiploma') ? 'Diploma percentage' : '12th percentage'}
                   {...field}
                   onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                 />

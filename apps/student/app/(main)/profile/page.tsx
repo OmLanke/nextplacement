@@ -846,15 +846,15 @@ export default function ProfilePage() {
                         type="number"
                         step="0.01"
                         min="0"
-                        max="10"
+                        max="100"
                         placeholder="0.00"
                       />
                     ) : (
-                      <Input id="ssc" value={`${student.ssc}/10`} readOnly />
+                      <Input id="ssc" value={`${student.ssc}/100`} readOnly />
                     )}
                   </div>
                   <div>
-                    <Label htmlFor="hsc">HSC Score</Label>
+                    <Label htmlFor="hsc">{editData.isDiploma || student.isDiploma ? 'Diploma Score' : 'HSC Score'}</Label>
                     {editingSection === 'academic' ? (
                       <Input 
                         id="hsc" 
@@ -863,11 +863,11 @@ export default function ProfilePage() {
                         type="number"
                         step="0.01"
                         min="0"
-                        max="10"
+                        max="100"
                         placeholder="0.00"
                       />
                     ) : (
-                      <Input id="hsc" value={`${student.hsc}/10`} readOnly />
+                      <Input id="hsc" value={`${student.hsc}/100`} readOnly />
                     )}
                   </div>
                 </div>
