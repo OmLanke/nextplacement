@@ -28,7 +28,7 @@ export type Job = InferSelectModel<typeof jobs> & {
 export type Resume = typeof resumes.$inferSelect;
 
 interface JobApplicationModalProps {
-  job: Job & { minCGPA: number };
+  job: Job;
   studentId: number;
   resumes: Resume[];
   isApplied?: boolean;

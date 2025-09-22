@@ -29,6 +29,9 @@ import {
   CheckCircle,
   AlertCircle,
   LinkIcon,
+  Upload,
+  FileText,
+  X,
 } from "lucide-react"
 import { cn } from "@workspace/ui/lib/utils"
 import { Alert, AlertDescription } from "@workspace/ui/components/alert"
@@ -62,6 +65,8 @@ function NewJobForm({ companies }: { companies: { id: number; name: string }[] }
       minHSC: 0,
       allowDeadKT: true,
       allowLiveKT: true,
+      fileType: undefined,
+      descriptionFile: undefined,
     },
   })
 
@@ -74,7 +79,7 @@ function NewJobForm({ companies }: { companies: { id: number; name: string }[] }
       formData.append('companyId', String(data.companyId))
       formData.append('title', data.title)
       formData.append('link', data.link)
-      formData.append('description', data.description)
+      formData.append('description', data.description || '')
       formData.append('location', data.location)
       formData.append('imageURL', data.imageURL || '')
       formData.append('salary', data.salary)
@@ -88,6 +93,12 @@ function NewJobForm({ companies }: { companies: { id: number; name: string }[] }
       formData.append('minHSC', String(data.minHSC))
       formData.append('allowDeadKT', String(data.allowDeadKT))
       formData.append('allowLiveKT', String(data.allowLiveKT))
+
+      // Handle file upload
+      if (data.descriptionFile) {
+        formData.append('descriptionFile', data.descriptionFile)
+        formData.append('fileType', data.fileType || (data.descriptionFile.type === 'application/pdf' ? 'pdf' : 'text'))
+      }
 
       const result = await createJob(formData)
       if (result?.success) {
@@ -412,23 +423,102 @@ function NewJobForm({ companies }: { companies: { id: number; name: string }[] }
                     />
                   </div>
 
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-sm font-medium text-gray-700">Job Description *</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Describe the role, responsibilities, and requirements..."
-                            {...field}
-                            className="min-h-[120px] resize-none"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  {/* Job Description Section - Text or File */}
+                  <div className="space-y-4">
+                    <FormLabel className="text-sm font-medium text-gray-700">Job Description *</FormLabel>
+                    <p className="text-sm text-gray-600">Provide either a text description or upload a PDF/text file</p>
+                    
+                    <FormField
+                      control={form.control}
+                      name="description"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-medium text-gray-700">Text Description</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="Describe the role, responsibilities, and requirements..."
+                              {...field}
+                              className="min-h-[120px] resize-none"
+                              disabled={!!form.watch('descriptionFile')}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <div className="flex items-center justify-center">
+                      <div className="flex-1 border-t border-gray-300"></div>
+                      <div className="px-3 text-sm text-gray-500 bg-white">OR</div>
+                      <div className="flex-1 border-t border-gray-300"></div>
+                    </div>
+
+                    <FormField
+                      control={form.control}
+                      name="descriptionFile"
+                      render={({ field: { onChange, value, ...field } }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-medium text-gray-700">Upload Description File</FormLabel>
+                          <FormControl>
+                            <div className="space-y-4">
+                              <div className="flex items-center justify-center w-full">
+                                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                    <Upload className="w-8 h-8 mb-4 text-gray-500" />
+                                    <p className="mb-2 text-sm text-gray-500">
+                                      <span className="font-semibold">Click to upload</span> or drag and drop
+                                    </p>
+                                    <p className="text-xs text-gray-500">PDF or TXT (MAX. 5MB)</p>
+                                  </div>
+                                  <input
+                                    type="file"
+                                    accept=".pdf,.txt,application/pdf,text/plain"
+                                    className="hidden"
+                                    onChange={(e) => {
+                                      const file = e.target.files?.[0]
+                                      if (file) {
+                                        onChange(file)
+                                        // Auto-detect file type
+                                        const fileType = file.type === 'application/pdf' ? 'pdf' : 'text'
+                                        form.setValue('fileType', fileType)
+                                        // Clear text description
+                                        form.setValue('description', '')
+                                      }
+                                    }}
+                                    disabled={!!form.watch('description')?.trim()}
+                                    {...field}
+                                  />
+                                </label>
+                              </div>
+                              
+                              {value && (
+                                <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                  <FileText className="w-4 h-4 text-blue-600" />
+                                  <span className="text-sm text-blue-800 flex-1">{value.name}</span>
+                                  <span className="text-xs text-blue-600">
+                                    {(value.size / 1024 / 1024).toFixed(2)} MB
+                                  </span>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                      onChange(undefined)
+                                      form.setValue('fileType', undefined)
+                                    }}
+                                    className="text-blue-600 hover:text-blue-800"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </div>
 
                 {/* Academic Requirements Section */}

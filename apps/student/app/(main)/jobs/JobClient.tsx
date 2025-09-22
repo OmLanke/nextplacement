@@ -31,6 +31,8 @@ import {
   ExternalLink,
   Loader2,
   AlertCircle,
+  FileText,
+  Download,
 } from 'lucide-react';
 import JobApplicationModal from '@/components/job-application-modal';
 import { type InferSelectModel } from '@workspace/db/drizzle';
@@ -41,6 +43,68 @@ export type Job = InferSelectModel<typeof jobs> & {
 };
 
 export type Resume = typeof resumes.$inferSelect;
+
+const JobDescription = ({ job }: { job: Job }) => {
+  if (job.fileUrl && job.fileName) {
+    const apiFileUrl = `/api/files/job-descriptions/${job.fileName}`;
+    // Display file information
+    return (
+      <div className="mb-4">
+        <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+          <FileText className="w-5 h-5 text-blue-600" />
+          <div className="flex-1">
+            <p className="text-sm font-medium text-blue-800">Job Description File</p>
+            <p className="text-xs text-blue-600">{job.fileName}</p>
+          </div>
+          <div className="flex gap-2">
+            {job.fileType === 'pdf' ? (
+              <Button
+                size="sm"
+                variant="outline"
+                className="text-blue-600 border-blue-300 hover:bg-blue-100"
+                onClick={() => window.open(apiFileUrl, '_blank')}
+              >
+                <Eye className="w-4 h-4 mr-1" />
+                View PDF
+              </Button>
+            ) : (
+              <Button
+                size="sm"
+                variant="outline"
+                className="text-blue-600 border-blue-300 hover:bg-blue-100"
+                onClick={() => window.open(apiFileUrl, '_blank')}
+              >
+                <FileText className="w-4 h-4 mr-1" />
+                View File
+              </Button>
+            )}
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-blue-600 hover:bg-blue-100"
+              onClick={() => {
+                const link = document.createElement('a');
+                link.href = apiFileUrl;
+                link.download = job.fileName!;
+                link.click();
+              }}
+            >
+              <Download className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Display text description
+  if (job.description) {
+    return <p className="text-gray-600 text-sm mb-4 line-clamp-2">{job.description}</p>;
+  }
+
+  // Fallback
+  return <p className="text-gray-500 text-sm mb-4 italic">No description available</p>;
+};
 
 export default function JobsPage({
   eligibleJobs,
@@ -77,7 +141,8 @@ export default function JobsPage({
         (job) =>
           job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
           job.company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          job.description.toLowerCase().includes(searchTerm.toLowerCase()),
+          (job.description && job.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (job.fileName && job.fileName.toLowerCase().includes(searchTerm.toLowerCase())),
       );
     }
 
@@ -324,7 +389,7 @@ export default function JobsPage({
                   </div>
                 </div>
 
-                <p className="text-gray-600 text-sm mb-4 line-clamp-2">{job.description}</p>
+                <JobDescription job={job} />
 
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <div className="flex items-center gap-2 text-sm text-gray-600">
@@ -341,7 +406,7 @@ export default function JobsPage({
                   <div className="flex gap-2">
                     {activeTab === 'eligible' ? (
                       <JobApplicationModal
-                        job={{ ...job, minCGPA: Number(job.minCGPA) }}
+                        job={job}
                         studentId={studentId}
                         resumes={resumes}
                         isApplied={appliedJobIds.includes(job.id)}

@@ -71,6 +71,20 @@
       "when": 1758549147237,
       "tag": "0009_wealthy_chronomancer",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1758568071620,
+      "tag": "0010_nappy_avengers",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1758570908922,
+      "tag": "0011_gifted_cammi",
+      "breakpoints": true
     }
   ]
 }

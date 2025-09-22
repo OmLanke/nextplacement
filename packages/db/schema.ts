@@ -206,7 +206,7 @@ export const jobs = pgTable('jobs', {
     .references(() => companies.id),
   title: text().notNull(),
   link: text().notNull(),
-  description: text().notNull(),
+  description: text(), // Made nullable since we can have file uploads instead
   location: text().notNull(),
   imageURL: text().notNull(),
   salary: text().notNull(),
@@ -217,6 +217,10 @@ export const jobs = pgTable('jobs', {
   minHSC: numeric({ precision: 4, scale: 2 }).notNull().default('0'),
   allowDeadKT: boolean().notNull().default(true),
   allowLiveKT: boolean().notNull().default(true),
+  // File upload fields for job description
+  fileType: varchar({ length: 10 }), // 'pdf' or 'text' or null for regular description
+  fileUrl: text(), // URL to uploaded file
+  fileName: text(), // Original filename
   createdAt: timestamp().notNull().defaultNow(),
   updatedAt: timestamp()
     .defaultNow()
