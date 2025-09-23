@@ -195,12 +195,13 @@ export default function JobsPage({
           </p>
         </div>
 
-        {/* Search and Filter Section */}
-        <Card className="bg-white shadow-sm mb-8">
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="md:col-span-2">
-                <div className="relative">
+        {/* Search and Stats Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+          {/* Search Bar - Takes 2 columns */}
+          <Card className="bg-white shadow-sm lg:col-span-2">
+            <CardContent className="p-6">
+              <div className="flex flex-col md:flex-row gap-3">
+                <div className="flex-1 relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <Input
                     placeholder="Search jobs by title, company, or skills..."
@@ -209,56 +210,54 @@ export default function JobsPage({
                     onChange={(e) => handleSearch(e.target.value)}
                   />
                 </div>
+                <div className="w-40">
+                  <Select value={locationFilter} onValueChange={handleLocationFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Location" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Locations</SelectItem>
+                      <SelectItem value="remote">Remote</SelectItem>
+                      <SelectItem value="san francisco">On Site</SelectItem>
+                      <SelectItem value="new york">Mumbai</SelectItem>
+                      <SelectItem value="seattle">Delhi</SelectItem>
+                      <SelectItem value="austin">Banglore</SelectItem>
+                      <SelectItem value="los angeles">Gurgaon</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="w-40">
+                  <Select value={jobTypeFilter} onValueChange={handleJobTypeFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Job Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Types</SelectItem>
+                      <SelectItem value="intern">Internship</SelectItem>
+                      <SelectItem value="engineer">Engineering</SelectItem>
+                      <SelectItem value="analyst">Analyst</SelectItem>
+                      <SelectItem value="designer">Design</SelectItem>
+                      <SelectItem value="manager">Management</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-              <div>
-                <Select value={locationFilter} onValueChange={handleLocationFilter}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Location" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Locations</SelectItem>
-                    <SelectItem value="remote">Remote</SelectItem>
-                    <SelectItem value="san francisco">On Site</SelectItem>
-                    <SelectItem value="new york">Mumbai</SelectItem>
-                    <SelectItem value="seattle">Delhi</SelectItem>
-                    <SelectItem value="austin">Banglore</SelectItem>
-                    <SelectItem value="los angeles">Gurgaon</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Select value={jobTypeFilter} onValueChange={handleJobTypeFilter}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Job Type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Types</SelectItem>
-                    <SelectItem value="intern">Internship</SelectItem>
-                    <SelectItem value="engineer">Engineering</SelectItem>
-                    <SelectItem value="analyst">Analyst</SelectItem>
-                    <SelectItem value="designer">Design</SelectItem>
-                    <SelectItem value="manager">Management</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            {(searchTerm ||
-              (locationFilter && locationFilter !== 'all') ||
-              (jobTypeFilter && jobTypeFilter !== 'all')) && (
-              <div className="mt-4 flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={clearFilters}>
-                  Clear Filters
-                </Button>
-                <span className="text-sm text-gray-500">
-                  {filteredJobs.length} of {allJobs.length} jobs
-                </span>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+              {(searchTerm ||
+                (locationFilter && locationFilter !== 'all') ||
+                (jobTypeFilter && jobTypeFilter !== 'all')) && (
+                <div className="mt-4 flex items-center gap-2">
+                  <Button variant="outline" size="sm" onClick={clearFilters}>
+                    Clear Filters
+                  </Button>
+                  <span className="text-sm text-gray-500">
+                    {filteredJobs.length} of {allJobs.length} jobs
+                  </span>
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          {/* Total Jobs Stat - Takes 1 column */}
           <Card className="bg-white shadow-sm">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -271,6 +270,7 @@ export default function JobsPage({
             </CardContent>
           </Card>
 
+          {/* Active Companies Stat - Takes 1 column */}
           <Card className="bg-white shadow-sm">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -281,32 +281,6 @@ export default function JobsPage({
                   </p>
                 </div>
                 <Building2 className="w-8 h-8 text-green-600" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white shadow-sm">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Remote Jobs</p>
-                  <p className="text-3xl font-bold text-gray-800">
-                    {allJobs.filter((job) => job.location.toLowerCase().includes('remote')).length}
-                  </p>
-                </div>
-                <Users className="w-8 h-8 text-purple-600" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white shadow-sm">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Avg Salary</p>
-                  <p className="text-3xl font-bold text-gray-800">$28/hr</p>
-                </div>
-                <DollarSign className="w-8 h-8 text-orange-600" />
               </div>
             </CardContent>
           </Card>
