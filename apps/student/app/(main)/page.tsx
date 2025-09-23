@@ -171,7 +171,13 @@ export default async function DashboardPage() {
                     <div className="flex items-start justify-between mb-4">
                       <div>
                         <h3 className="text-xl font-bold text-gray-900 mb-2">{company.name}</h3>
-                        <p className="text-gray-600 text-sm">{company.email}</p>
+                        {company.link && company.link !== "N/A" && (
+                          <p className="text-blue-600 text-sm hover:underline">
+                            <a href={company.link} target="_blank" rel="noopener noreferrer">
+                              Visit Website
+                            </a>
+                          </p>
+                        )}
                       </div>
                       <Badge variant="secondary" className="bg-blue-100 text-blue-700">
                         {company.jobs.length} jobs
@@ -374,7 +380,7 @@ export default async function DashboardPage() {
               </Button>
             </Link>
             <Link href="/jobs">
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 px-8 py-3 text-lg hover:text-black text-primary font-semibold">
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 hover:text-black px-8 py-3 text-lg font-semibold">
                 Browse Jobs
               </Button>
             </Link>

@@ -5,7 +5,7 @@ import { headers } from 'next/headers';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { filename: string } }
+  { params }: { params: Promise<{ filename: string }> }
 ) {
   console.log("HELLO WORLD")
   try {
