@@ -21,6 +21,7 @@ import {
   BookOpen
 } from 'lucide-react';
 import { signOutAction } from './actions';
+import Footer from '@/components/footer';
 
 const navLinks = [
   { 
@@ -75,7 +76,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 font-sans">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 font-sans flex flex-col">
       {/* Modern Student Navbar */}
       <header className={`sticky top-0 z-50 w-full transition-all duration-300 ${
         isScrolled 
@@ -290,9 +291,12 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       </header>
 
       {/* Main Content */}
-      <main className="min-h-screen">
+      <main className="flex-1">
         {children}
       </main>
+
+      {/* Footer */}
+      <Footer />
 
       {/* Click outside to close dropdowns */}
       {isProfileDropdownOpen && (
