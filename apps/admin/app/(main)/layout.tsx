@@ -74,7 +74,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
             <div className="flex items-center gap-3 group">
               <div className="relative">
                 <img 
-                  src="/favicon.ico" 
+                  src="favicon.ico" 
                   alt="Logo" 
                   className="w-10 h-10 rounded-xl shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110" 
                 />

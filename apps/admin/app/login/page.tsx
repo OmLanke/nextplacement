@@ -18,7 +18,7 @@ export default async function Page() {
       <div className="relative z-10 backdrop-blur-md bg-white/70 rounded-2xl shadow-2xl p-10 flex flex-col items-center gap-8 border border-white/30 max-w-sm w-full transition-all duration-300 hover:shadow-[0_0_32px_4px_rgba(239,68,68,0.25)] hover:border-red-400/60">
         <div className="flex flex-col items-center gap-2">
           {/* Animated logo */}
-          <img src="/favicon.ico" alt="Logo" className="w-14 h-14 mb-2 drop-shadow-lg animate-bounce-slow" />
+          <img src="favicon.ico" alt="Logo" className="w-14 h-14 mb-2 drop-shadow-lg animate-bounce-slow" />
           <h1 className="text-2xl font-bold text-gray-800 tracking-tight">Placement Portal Admin</h1>
           <p className="text-gray-500 text-sm text-center">Sign in to manage placements and students</p>
           <p className="text-xs text-red-500 font-semibold italic mt-1 animate-fade-in">Empower your journey. Shape the future.</p>
