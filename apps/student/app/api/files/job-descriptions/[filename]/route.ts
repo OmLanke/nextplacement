@@ -7,15 +7,20 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { filename: string } }
 ) {
+  console.log("HELLO WORLD")
   try {
-    const filename = params.filename;
+    const { filename } = await params;
     
     // Security check - prevent directory traversal
     if (filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
       return NextResponse.json({ error: 'Invalid filename' }, { status: 400 });
     }
     
-    const filePath = join(process.cwd(), 'public', 'uploads', 'job-descriptions', filename);
+    // Look for files in the shared uploads directory (navigate to workspace root)
+    const workspaceRoot = join(process.cwd(), '..', '..');
+    const filePath = join(workspaceRoot, 'shared', 'uploads', 'job-descriptions', filename);
+    
+    console.log('Looking for file at:', filePath);
     
     try {
       const fileBuffer = await readFile(filePath);
@@ -37,6 +42,7 @@ export async function GET(
       
       return response;
     } catch (error) {
+      console.error('File not found:', error);
       return NextResponse.json({ error: 'File not found' }, { status: 404 });
     }
   } catch (error) {

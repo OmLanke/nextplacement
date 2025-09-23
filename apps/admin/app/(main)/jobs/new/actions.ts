@@ -30,8 +30,8 @@ export async function createJob(formData: FormData) {
 
   if (descriptionFile && descriptionFile.size > 0) {
     try {
-      // Create uploads directory if it doesn't exist
-      const uploadsDir = join(process.cwd(), 'public', 'uploads', 'job-descriptions');
+      // Create uploads directory in shared location if it doesn't exist
+      const uploadsDir = join(process.cwd(), 'shared', 'uploads', 'job-descriptions');
       await mkdir(uploadsDir, { recursive: true });
 
       // Generate unique filename
