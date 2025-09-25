@@ -119,9 +119,9 @@ temp/
 drizzle/
 
 # === Uploads and user content ===
-# shared/uploads/
-# uploads/
-# **/uploads/
+shared/uploads/
+uploads/
+**/uploads/
 
 # === Miscellaneous ===
 .cursorignore
