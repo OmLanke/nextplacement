@@ -57,7 +57,10 @@ RUN adduser --system --uid 1001 nextjs
 # Copy the standalone output
 COPY --from=builder /app/apps/student/.next/standalone ./
 COPY --from=builder /app/apps/student/.next/static ./apps/student/.next/static
-COPY --from=builder /app/apps/student/public ./apps/student/public
+
+# Create and copy public directory
+RUN mkdir -p ./apps/student/public
+COPY --from=builder /app/apps/student/public/ ./apps/student/public/
 
 # Set the correct permission for prerender cache
 RUN mkdir .next
