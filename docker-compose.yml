@@ -7,21 +7,21 @@ services:
       context: .
       dockerfile: apps/student/Dockerfile
     ports:
-      - "3000:3000"
+      - "9000:9000"
     environment:
       - NODE_ENV=production
-      - PORT=3000
+      - PORT=9000
       - HOSTNAME=0.0.0.0
     # Add your environment variables here
-    # env_file:
-    #   - .env
+    env_file:
+      - docker.env
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    # healthcheck:
+    #   test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9000/api/health"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3
+    #   start_period: 40s
 
   # Admin application
   admin:
@@ -29,21 +29,21 @@ services:
       context: .
       dockerfile: apps/admin/Dockerfile
     ports:
-      - "3001:3001"
+      - "9001:9001"
     environment:
       - NODE_ENV=production
-      - PORT=3001
+      - PORT=9001
       - HOSTNAME=0.0.0.0
     # Add your environment variables here
-    # env_file:
-    #   - .env
+    env_file:
+      - docker.env
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/api/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    # healthcheck:
+    #   test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9001/api/health"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3
+    #   start_period: 40s
 
   # Database (if you need one)
   # postgres:

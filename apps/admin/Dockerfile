@@ -15,21 +15,32 @@ COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml* ./
 COPY apps/admin/package.json ./apps/admin/
 COPY packages/db/package.json ./packages/db/
 COPY packages/ui/package.json ./packages/ui/
+COPY packages/eslint-config/package.json ./packages/eslint-config/
+COPY packages/typescript-config/package.json ./packages/typescript-config/
 
-# Install dependencies
+# Install dependencies (including devDependencies for build process)
 RUN pnpm install --frozen-lockfile
 
 # Rebuild the source code only when needed
 FROM base AS builder
+RUN apk update && apk add --no-cache libc6-compat
+RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+# Copy environment file for build process and create .env for dotenv-cli
+COPY docker.env ./docker.env
+COPY docker.env ./.env
 
 # Set environment variables for build
 ENV NEXT_TELEMETRY_DISABLED 1
 ENV NODE_ENV production
 
-# Build the application
+# Ensure devDependencies are available during build (needed for PostCSS plugins)
+RUN pnpm install --frozen-lockfile
+
+# Build the application with environment variables
 RUN pnpm turbo run build --filter=admin...
 
 # Production image, copy all the files and run next
@@ -53,9 +64,9 @@ RUN chown nextjs:nodejs .next
 
 USER nextjs
 
-EXPOSE 3001
+EXPOSE 9001
 
-ENV PORT 3001
+ENV PORT 9001
 ENV HOSTNAME "0.0.0.0"
 
 # server.js is created by next build from the standalone output
